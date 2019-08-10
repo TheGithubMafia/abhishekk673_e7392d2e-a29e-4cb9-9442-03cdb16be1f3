@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_explore"
+        android:icon="@drawable/ic_buying_on_smartphone"
+        android:title="@string/title_explore" />
+
+    <item
+        android:id="@+id/navigation_sell"
+        android:icon="@drawable/ic_payment_method"
+        android:title="@string/title_sell" />
+
+    <item
+        android:id="@+id/navigation_account"
+        android:icon="@drawable/ic_round_account_button_with_user_inside"
+        android:title="@string/title_account" />
+
+</menu>
