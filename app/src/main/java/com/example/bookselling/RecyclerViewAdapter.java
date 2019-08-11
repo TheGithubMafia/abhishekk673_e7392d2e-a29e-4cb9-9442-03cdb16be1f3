@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.List;
@@ -84,7 +85,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
             //cardImageView.setImageBitmap(dataModel.getImage());
 //            Log.i("ye ha url",dataModel.getDownloadUri());
-          setImage(dataModel,cardImageView);
+          setImage(dataModel,cardImageView,context);
             titleTextView.setText(dataModel.getTitle());
             subTitleTextView.setText(dataModel.getAuthor());
         }
@@ -93,16 +94,21 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public void onClick(View v) {
             onItemListener.OnBookClick(getAdapterPosition());
         }
+
     }
 
 
-    public static void setImage(DataModel dataModel, final ImageView cardImageView){
+    public static void setImage(DataModel dataModel, final ImageView cardImageView,Context mContext){
 
 
-        FirebaseStorage storage=FirebaseStorage.getInstance();
-        StorageReference httpsReference = storage.getReferenceFromUrl(dataModel.getDownloadUri());
+       // FirebaseStorage storage=FirebaseStorage.getInstance();
+        //StorageReference httpsReference = storage.getReferenceFromUrl(dataModel.getDownloadUri());
 
-        try {
+
+        Picasso.with(mContext).load(dataModel.getDownloadUri()).placeholder(R.drawable.ic_dashboard_black_24dp).into(cardImageView);
+
+
+       /* try {
             final File localFile = File.createTempFile("images", "jpg");
 
             httpsReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -122,7 +128,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         }catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
 
 }
 

@@ -2,6 +2,8 @@ package com.example.bookselling;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.Locale;
@@ -51,7 +53,6 @@ public class DataModel {
         this.downloadUri=downloadUri;
         Log.i("dl",downloadUri);
     }
-
 
 
 
