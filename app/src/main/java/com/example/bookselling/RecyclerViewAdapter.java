@@ -32,7 +32,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private Context mContext;
     private OnItemListener mOnItemListener;
 
-    public RecyclerViewAdapter(List<DataModel> modelList, Context context,OnItemListener mOnItemListener) {
+    public RecyclerViewAdapter(List<DataModel> modelList, Context context, OnItemListener mOnItemListener) {
         dataModelList = modelList;
         mContext = context;
         this.mOnItemListener=mOnItemListener;
@@ -60,19 +60,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     // View holder class whose objects represent each list item
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         public ImageView cardImageView;
         public TextView titleTextView;
         public TextView subTitleTextView;
         OnItemListener onItemListener;
 
-        public MyViewHolder(@NonNull View itemView,OnItemListener onItemListener) {
+        public MyViewHolder(@NonNull View itemView, OnItemListener onItemListener) {
             super(itemView);
             this.onItemListener=onItemListener;
             cardImageView = itemView.findViewById(R.id.imageView);
             titleTextView = itemView.findViewById(R.id.card_title);
             subTitleTextView = itemView.findViewById(R.id.card_subtitle);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
 
 
         }
@@ -95,6 +96,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             onItemListener.OnBookClick(getAdapterPosition());
         }
 
+        @Override
+        public boolean onLongClick(View view) {
+          onItemListener.OnBookLongClick(getAdapterPosition());
+          return true;
+        }
     }
 
 
@@ -134,6 +140,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 public interface OnItemListener{
         void OnBookClick(int position);
+        void OnBookLongClick(int position);
     }
 
 }
