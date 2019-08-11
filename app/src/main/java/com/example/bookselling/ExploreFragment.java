@@ -31,11 +31,14 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    static public List<DataModel> dataModelList;
+    static public ArrayList<DataModel> dataModelList;
 
     private FirebaseDatabase mdatabase;
     private DatabaseReference mBooksReference;
     private ChildEventListener mChildEventListener;
+
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
         View view=inflater.inflate(R.layout.fragment_explore,null);
         mRecyclerView = view.findViewById(R.id.recyclerView);
 
+Log.i("abc","Oncreateview");
 
 
       //
@@ -50,8 +54,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
         mdatabase=FirebaseDatabase.getInstance();
         mBooksReference=mdatabase.getReference().child("books");
 
-       addItems();
-
+     addItems();
 
 
 
@@ -123,5 +126,6 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
         intent.putExtra("position",position);
         startActivity(intent);
     }
+
 }
 
