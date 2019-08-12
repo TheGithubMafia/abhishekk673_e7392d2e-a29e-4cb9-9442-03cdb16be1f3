@@ -76,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//            CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) navigation.getLayoutParams();
-  //          layoutParams.setBehavior(new BottomNavigationBehavior());
+            CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) navigation.getLayoutParams();
+            layoutParams.setBehavior(new BottomNavigationBehavior1());
 
 
 //        loadFragment(new ExploreFragment());
