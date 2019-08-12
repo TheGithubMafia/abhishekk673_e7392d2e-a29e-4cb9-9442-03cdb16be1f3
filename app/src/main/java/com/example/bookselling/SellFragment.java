@@ -24,6 +24,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -52,7 +54,6 @@ public class SellFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_sell, null);
-
         mdatabase=FirebaseDatabase.getInstance();
         mBooksReference=mdatabase.getReference().child("books");
         mFirebaseStorageInstance=FirebaseStorage.getInstance();
@@ -100,7 +101,10 @@ public class SellFragment extends Fragment {
                     public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
                           Uri downloadUri = task.getResult();
-                            DataModel book=new DataModel(title,author,description,price,downloadUri.toString());
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            String userId=user.getUid();
+                            DataModel book=new DataModel(title,author,description,price,downloadUri.toString(),userId);
+
                             mBooksReference.push().setValue(book);
                             Log.i("ye",downloadUri.toString());
                         } else {

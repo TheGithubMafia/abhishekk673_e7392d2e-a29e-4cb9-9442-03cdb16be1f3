@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,7 +33,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    static public ArrayList<DataModel> dataModelList;
+    static public List<DataModel> dataModelList;
 
     private FirebaseDatabase mdatabase;
     private DatabaseReference mBooksReference;
