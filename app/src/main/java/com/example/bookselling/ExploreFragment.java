@@ -92,6 +92,7 @@ Log.i("abc","Oncreateview");
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 DataModel dataModel=dataSnapshot.getValue(DataModel.class);
+                dataModel.setRefKey(dataSnapshot.getKey());
                 dataModelList.add(dataModel);
                 mAdapter.notifyDataSetChanged();
                 Log.i("expfr",dataModel.getDownloadUri());
@@ -132,7 +133,7 @@ Log.i("abc","Oncreateview");
     }
 
     @Override
-    public void OnBookLongClick(int position) {
+    public void OnBookLongClick(int position,View view) {
         Toast.makeText(getContext(),"long clik"+position,Toast.LENGTH_SHORT).show();
     }
 

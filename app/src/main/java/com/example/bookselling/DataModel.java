@@ -6,6 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.sql.Ref;
 import java.util.Locale;
 
 public class DataModel {
@@ -16,6 +17,8 @@ public class DataModel {
     private int price;
     private String downloadUri;
     private String userId;
+
+    private transient String RefKey;
 
    // private Bitmap image;
 
@@ -44,6 +47,13 @@ public class DataModel {
 
     public String getUserId(){return userId;}
 
+    public void setRefKey(String RefKey){
+        this.RefKey=RefKey;
+    }
+
+    public String getRefKey(){
+        return RefKey;
+    }
 
    // public Bitmap getImage() {
        // return image;
