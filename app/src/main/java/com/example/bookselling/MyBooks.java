@@ -10,6 +10,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -21,9 +26,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.OnItemListener  {
+public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.OnItemListener,PopupMenu.OnMenuItemClickListener  {
 
     private List<DataModel> MyBooksList;
+    private int selectedItem;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -77,6 +83,7 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 DataModel dataModel=dataSnapshot.getValue(DataModel.class);
+                dataModel.setRefKey(dataSnapshot.getKey());
                 MyBooksList.add(dataModel);
                 mAdapter.notifyDataSetChanged();
                 Log.i("expfr",dataModel.getDownloadUri());
@@ -113,7 +120,28 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
     }
 
     @Override
-    public void OnBookLongClick(int position) {
+    public void OnBookLongClick(int position, View view) {
+        PopupMenu popup = new PopupMenu(this, view);
+        MenuInflater inflater = popup.getMenuInflater();
+        selectedItem=position;
+        inflater.inflate(R.menu.pop_up_menu, popup.getMenu());
+        popup.setOnMenuItemClickListener(this);
+        popup.show();
+    }
 
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete:
+                //archive(item);
+                mBooksReference.child(MyBooksList.get(selectedItem).getRefKey()).removeValue();
+                MyBooksList.remove(selectedItem);
+
+                mAdapter.notifyDataSetChanged();
+                Toast.makeText(this,"deleted"+selectedItem,Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return false;
+        }
     }
 }

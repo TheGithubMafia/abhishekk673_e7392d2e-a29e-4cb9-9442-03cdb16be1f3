@@ -98,7 +98,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public boolean onLongClick(View view) {
-          onItemListener.OnBookLongClick(getAdapterPosition());
+          onItemListener.OnBookLongClick(getAdapterPosition(),view);
           return true;
         }
     }
@@ -140,7 +140,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 public interface OnItemListener{
         void OnBookClick(int position);
-        void OnBookLongClick(int position);
+        void OnBookLongClick(int position,View view);
     }
 
 }
