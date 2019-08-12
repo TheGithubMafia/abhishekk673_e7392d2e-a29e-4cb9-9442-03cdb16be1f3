@@ -1,7 +1,5 @@
 package com.example.bookselling;
 
-import android.content.Context;
-import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -10,15 +8,12 @@ import androidx.core.view.ViewCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class BottomNavigationBehavior extends CoordinatorLayout.Behavior<BottomNavigationView> {
+public class BottomNavigationBehavior1 extends CoordinatorLayout.Behavior<BottomNavigationView> {
 
-    public BottomNavigationBehavior() {
+    public BottomNavigationBehavior1() {
         super();
     }
 
-    public BottomNavigationBehavior(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
 
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, BottomNavigationView child, View dependency) {

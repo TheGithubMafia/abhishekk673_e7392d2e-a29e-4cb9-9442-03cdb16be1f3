@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -58,6 +59,8 @@ public class SellFragment extends Fragment {
         mBooksReference=mdatabase.getReference().child("books");
         mFirebaseStorageInstance=FirebaseStorage.getInstance();
         mStorageReference=mFirebaseStorageInstance.getReference().child("images");
+
+
 
         FloatingActionButton fab=view.findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
