@@ -29,12 +29,21 @@ public class AccountFragment extends Fragment {
         emailTV.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
 
-        Button button=view.findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
+        Button logoutButton=view.findViewById(R.id.logoutButton);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
                 Intent intent=new Intent(getContext(),LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        Button myBooksButton=view.findViewById(R.id.myBooksButton);
+        myBooksButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(getContext(),MyBooks.class);
                 startActivity(intent);
             }
         });

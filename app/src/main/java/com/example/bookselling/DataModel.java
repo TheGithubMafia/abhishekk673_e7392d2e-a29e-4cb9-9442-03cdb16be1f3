@@ -15,10 +15,12 @@ public class DataModel {
     private String description;
     private int price;
     private String downloadUri;
+    private String userId;
 
    // private Bitmap image;
 
     public DataModel(){}
+
 
     public String getTitle() {
         return title;
@@ -40,17 +42,22 @@ public class DataModel {
         return downloadUri;
     }
 
+    public String getUserId(){return userId;}
+
+
    // public Bitmap getImage() {
        // return image;
     //}
 
 
-    public DataModel(String title, String author, String description, int price,String downloadUri) {
+    public DataModel(String title, String author, String description, int price,String downloadUri,String userId) {
+
         this.title = title;
         this.author = author;
         this.description = description;
         this.price = price;
         this.downloadUri=downloadUri;
+        this.userId=userId;
         Log.i("dl",downloadUri);
     }
 
