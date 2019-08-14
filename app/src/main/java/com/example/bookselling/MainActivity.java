@@ -73,11 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
             mTextMessage = (TextView) findViewById(R.id.message);
 
-
-
-
-            CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) navigation.getLayoutParams();
-            layoutParams.setBehavior(new BottomNavigationBehavior1());
+//
+//            CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) navigation.getLayoutParams();
+//            layoutParams.setBehavior(new BottomNavigationBehavior1());
 
 
 //        loadFragment(new ExploreFragment());
