@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -41,7 +43,11 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
     private DatabaseReference mBooksReference;
     private ChildEventListener mChildEventListener;
 
-
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Nullable
     @Override
@@ -137,6 +143,20 @@ Log.i("abc","Oncreateview");
         Toast.makeText(getContext(),"long clik"+position,Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void OnButton1Click(int position, View view) {
+Toast.makeText(getContext(),"1"+position,Toast.LENGTH_SHORT).show();
+    }
 
+    @Override
+    public void OnButton2Click(int position, View view) {
+                Toast.makeText(getContext(),"2"+position,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.explore_action_bar, menu);
+    }
 }
 
