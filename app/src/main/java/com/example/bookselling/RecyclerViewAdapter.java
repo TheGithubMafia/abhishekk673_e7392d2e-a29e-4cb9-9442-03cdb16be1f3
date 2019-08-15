@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +45,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item, parent, false);
         // Return a new view holder
-
         return new MyViewHolder(view,mOnItemListener);
     }
 
@@ -65,15 +65,31 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public TextView titleTextView;
         public TextView subTitleTextView;
         OnItemListener onItemListener;
+        Button Action1;
+        Button Action2;
 
-        public MyViewHolder(@NonNull View itemView, OnItemListener onItemListener) {
+        public MyViewHolder(@NonNull final View itemView, final OnItemListener onItemListener) {
             super(itemView);
+            Action1=itemView.findViewById(R.id.action_button_1);
+            Action2=itemView.findViewById(R.id.action_button_2);
             this.onItemListener=onItemListener;
             cardImageView = itemView.findViewById(R.id.imageView);
             titleTextView = itemView.findViewById(R.id.card_title);
             subTitleTextView = itemView.findViewById(R.id.card_subtitle);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
+            Action1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemListener.OnButton1Click(getAdapterPosition(),itemView);
+                }
+            });
+            Action2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemListener.OnButton2Click(getAdapterPosition(),itemView);
+                }
+            });
 
 
         }
@@ -141,6 +157,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 public interface OnItemListener{
         void OnBookClick(int position);
         void OnBookLongClick(int position,View view);
+        void OnButton1Click(int position,View view);
+    void OnButton2Click(int position,View view);
     }
 
 }

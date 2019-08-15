@@ -130,6 +130,17 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
     }
 
     @Override
+    public void OnButton1Click(int position, View view) {
+
+    }
+
+    @Override
+    public void OnButton2Click(int position, View view) {
+
+    }
+
+
+    @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.delete:
