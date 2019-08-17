@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -112,6 +113,7 @@ Log.i("abc","Oncreateview");
         mChildEventListener=new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Log.i("fsd",dataSnapshot.getValue().toString());
                 DataModel dataModel=dataSnapshot.getValue(DataModel.class);
                 dataModel.setRefKey(dataSnapshot.getKey());
                 dataModelList.add(dataModel);
@@ -218,6 +220,21 @@ Toast.makeText(getContext(),"1"+position,Toast.LENGTH_SHORT).show();
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.explore_action_bar, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_favorite:
+                Intent intent=new Intent(getContext(),FavouritesActivity.class);
+                startActivity(intent);
+                Log.i("asdad","sad");
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
 
