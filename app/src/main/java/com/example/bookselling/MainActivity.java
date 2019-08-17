@@ -37,17 +37,20 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_explore:
                     fm.beginTransaction().hide(active).show(fragment1).commit();
                     active = fragment1;
+                    toolbar.setTitle("Explore");
                     return true;
 
                 case R.id.navigation_sell:
                     Toast.makeText(getApplicationContext(),active.toString()+"......"+fragment2,Toast.LENGTH_SHORT).show();
                     fm.beginTransaction().hide(active).show(fragment2).commit();
                     active = fragment2;
+                    toolbar.setTitle("Sell");
                     return true;
 
                 case R.id.navigation_account:
                     fm.beginTransaction().hide(active).show(fragment3).commit();
                     active = fragment3;
+                    toolbar.setTitle("Account");
                     return true;
             }
             return false;
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
             toolbar = getSupportActionBar();
-            toolbar.setTitle("explore");
+            toolbar.setTitle("Explore");
             Log.i("abc", "onCreate");
 
 

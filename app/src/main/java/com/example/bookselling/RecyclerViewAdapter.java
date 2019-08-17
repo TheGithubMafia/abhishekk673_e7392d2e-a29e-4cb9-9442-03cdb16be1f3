@@ -8,12 +8,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -27,6 +34,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
+
 
 
     private List<DataModel> dataModelList;
@@ -67,6 +75,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         OnItemListener onItemListener;
         Button Action1;
         Button Action2;
+        ImageButton favouriteButton;
+
+        private FirebaseDatabase mdatabase=FirebaseDatabase.getInstance();
+        private FirebaseAuth mAuth=FirebaseAuth.getInstance();
+
+        private DatabaseReference muserReference=mdatabase.getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
         public MyViewHolder(@NonNull final View itemView, final OnItemListener onItemListener) {
             super(itemView);
@@ -76,8 +90,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             cardImageView = itemView.findViewById(R.id.imageView);
             titleTextView = itemView.findViewById(R.id.card_title);
             subTitleTextView = itemView.findViewById(R.id.card_subtitle);
+            favouriteButton=itemView.findViewById(R.id.favouriteButton);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
+
+
+
+            favouriteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemListener.OnFavButtonClick(getAdapterPosition(),itemView);
+                }
+            });
             Action1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -95,14 +119,29 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
 
-        public void bindData(DataModel dataModel, Context context) {
+        public void bindData(final DataModel dataModel, Context context) {
             /*cardImageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_dashboard_black_24dp));
             ti0tleTextView.setText(dataModel.getTitle());
             subTitleTextView.setText(dataModel.getSubTitle());*/
 
             //cardImageView.setImageBitmap(dataModel.getImage());
 //            Log.i("ye ha url",dataModel.getDownloadUri());
-          setImage(dataModel,cardImageView,context);
+
+            muserReference.child("Favourites").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.hasChild(dataModel.getRefKey()))
+                        favouriteButton.setImageResource(R.drawable.ic_favorite_orange_24dp);
+                    else favouriteButton.setImageResource(R.drawable.ic_favorite_black_24dp);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            setImage(dataModel,cardImageView,context);
             titleTextView.setText(dataModel.getTitle());
             subTitleTextView.setText(dataModel.getAuthor());
         }
@@ -159,6 +198,7 @@ public interface OnItemListener{
         void OnBookLongClick(int position,View view);
         void OnButton1Click(int position,View view);
     void OnButton2Click(int position,View view);
+    void OnFavButtonClick(int position,View view);
     }
 
 }

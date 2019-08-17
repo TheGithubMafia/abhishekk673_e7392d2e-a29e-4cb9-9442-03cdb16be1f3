@@ -139,6 +139,11 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
 
     }
 
+    @Override
+    public void OnFavButtonClick(int position, View view) {
+
+    }
+
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
