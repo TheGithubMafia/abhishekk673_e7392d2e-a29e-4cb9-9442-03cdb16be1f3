@@ -2,6 +2,7 @@ package com.example.bookselling;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -41,7 +45,11 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
     private FirebaseDatabase mdatabase;
     private DatabaseReference mBooksReference;
+    private DatabaseReference mUsersReference;
     private ChildEventListener mChildEventListener;
+    Animation outAnimation;
+    Animation inAnimation;
+    private FirebaseAuth mAuth;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,6 +64,12 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
         View view=inflater.inflate(R.layout.fragment_explore,null);
         mRecyclerView = view.findViewById(R.id.recyclerView);
 
+        outAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fadeout);
+    inAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fadein);
+
+
+
+mAuth=FirebaseAuth.getInstance();
 Log.i("abc","Oncreateview");
 
 
@@ -63,6 +77,7 @@ Log.i("abc","Oncreateview");
 
         mdatabase=FirebaseDatabase.getInstance();
         mBooksReference=mdatabase.getReference().child("books");
+        mUsersReference=mdatabase.getReference().child("users");
 
      addItems();
 
@@ -151,6 +166,52 @@ Toast.makeText(getContext(),"1"+position,Toast.LENGTH_SHORT).show();
     @Override
     public void OnButton2Click(int position, View view) {
                 Toast.makeText(getContext(),"2"+position,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnFavButtonClick(final int position, View view) {
+        final    ImageButton btn=view.findViewById(R.id.favouriteButton);
+        outAnimation.setAnimationListener(new Animation.AnimationListener(){
+
+            // Other callback methods omitted for clarity.
+
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            public void onAnimationEnd(Animation animation){
+
+                // Modify the resource of the ImageButton
+                Drawable unselected=getResources().getDrawable(R.drawable.ic_favorite_black_24dp);
+                Drawable  selected=getResources().getDrawable(R.drawable.ic_favorite_orange_24dp);
+                Drawable btnDrawable=btn.getDrawable();
+
+                if(btnDrawable.getConstantState()==unselected.getConstantState()) {
+
+                    btn.setImageResource(R.drawable.ic_favorite_orange_24dp);
+                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(dataModelList.get(position).getRefKey()).setValue("True");
+
+                    // Create the new Animation to apply to the ImageButton.
+                    btn.startAnimation(inAnimation);
+                }
+
+                else{
+                    btn.setImageResource(R.drawable.ic_favorite_black_24dp);
+                    btn.startAnimation(inAnimation);
+                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(dataModelList.get(position).getRefKey()).removeValue();
+                }
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+            btn.startAnimation(outAnimation);
+
+
     }
 
     @Override
