@@ -40,6 +40,7 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         setContentView(R.layout.activity_signup);
         mdatabase=FirebaseDatabase.getInstance();
         musersReference=mdatabase.getReference().child("users");

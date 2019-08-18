@@ -55,6 +55,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
     }
 
@@ -64,6 +65,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
         View view=inflater.inflate(R.layout.fragment_explore,null);
         mRecyclerView = view.findViewById(R.id.recyclerView);
+
 
         outAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fadeout);
     inAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fadein);
