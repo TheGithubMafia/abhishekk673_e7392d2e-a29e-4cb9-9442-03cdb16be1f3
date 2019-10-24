@@ -218,25 +218,5 @@ Toast.makeText(getContext(),"1"+position,Toast.LENGTH_SHORT).show();
 
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.explore_action_bar, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.action_favorite:
-                Intent intent=new Intent(getContext(),FavouritesActivity.class);
-                startActivity(intent);
-                Log.i("asdad","sad");
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }
 
