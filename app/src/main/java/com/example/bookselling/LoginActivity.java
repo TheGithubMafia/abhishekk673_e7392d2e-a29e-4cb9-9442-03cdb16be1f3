@@ -10,36 +10,31 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-    private FirebaseAuth mAuth;
-
-
-    EditText _emailText ;
-
-EditText _passwordText;
-
+    EditText _emailText;
+    EditText _passwordText;
     Button _loginButton;
     TextView _signupLink;
-
+    private FirebaseAuth mAuth;
 
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser!=null){
-            Intent intent=new Intent(this,MainActivity.class);
+        if (currentUser != null) {
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
         }
@@ -52,13 +47,12 @@ EditText _passwordText;
 
         mAuth = FirebaseAuth.getInstance();
 
-         _emailText =findViewById(R.id.input_email);
+        _emailText = findViewById(R.id.input_email);
 
-        _passwordText=findViewById(R.id.input_password);
+        _passwordText = findViewById(R.id.input_password);
 
-         _loginButton=findViewById(R.id.btn_login);
-         _signupLink=findViewById(R.id.link_signup);
-
+        _loginButton = findViewById(R.id.btn_login);
+        _signupLink = findViewById(R.id.link_signup);
 
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
@@ -138,15 +132,15 @@ EditText _passwordText;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-              //  _emailText.setText(data.getStringExtra("email"));
-               // _passwordText.setText(data.getStringExtra("password"));
-              //  login();
+                //  _emailText.setText(data.getStringExtra("email"));
+                // _passwordText.setText(data.getStringExtra("password"));
+                //  login();
                 // TODO: Implement successful signup logic here
                 // By default we just finish the Activity and log them in automatically
-               // this.finish();
+                // this.finish();
             }
         }
     }
@@ -159,7 +153,7 @@ EditText _passwordText;
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
-        Intent intent=new Intent(getApplicationContext(),MainActivity.class);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 
         startActivity(intent);
         finish();

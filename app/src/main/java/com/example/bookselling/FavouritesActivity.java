@@ -31,7 +31,7 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private List<DataModel> favouritesList;
+    private List<BookDataModel> favouritesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +50,7 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
 
 
         /*for (int i = 1; i <= 20; ++i) {
-            dataModelList.add(new DataModel(i));
+            bookDataModelList.add(new BookDataModel(i));
         }*/
 
         // use this setting to improve performance if you know that changes
@@ -84,10 +84,10 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         Log.i("gdgf",dataSnapshot.getValue().toString());
-                        DataModel dataModel=dataSnapshot.getValue(DataModel.class);
-                        dataModel.setRefKey(dataSnapshot.getKey());
-                        Log.i("gdgf",dataModel.getAuthor());
-                        favouritesList.add(dataModel);
+                        BookDataModel bookDataModel =dataSnapshot.getValue(BookDataModel.class);
+                        bookDataModel.setRefKey(dataSnapshot.getKey());
+                        Log.i("gdgf", bookDataModel.getAuthor());
+                        favouritesList.add(bookDataModel);
                         mAdapter.notifyDataSetChanged();
                     }
 

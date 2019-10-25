@@ -1,9 +1,6 @@
 package com.example.bookselling;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,38 +8,30 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
 
 
 
-    private List<DataModel> dataModelList;
+    private List<BookDataModel> bookDataModelList;
     private Context mContext;
     private OnItemListener mOnItemListener;
 
-    public RecyclerViewAdapter(List<DataModel> modelList, Context context, OnItemListener mOnItemListener) {
-        dataModelList = modelList;
+    public RecyclerViewAdapter(List<BookDataModel> modelList, Context context, OnItemListener mOnItemListener) {
+        bookDataModelList = modelList;
         mContext = context;
         this.mOnItemListener=mOnItemListener;
     }
@@ -58,12 +47,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.bindData(dataModelList.get(position), mContext);
+        holder.bindData(bookDataModelList.get(position), mContext);
     }
 
     @Override
     public int getItemCount() {
-        return dataModelList.size();
+        return bookDataModelList.size();
     }
 
     // View holder class whose objects represent each list item
@@ -87,7 +76,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             Action1=itemView.findViewById(R.id.action_button_1);
             Action2=itemView.findViewById(R.id.action_button_2);
             this.onItemListener=onItemListener;
-            cardImageView = itemView.findViewById(R.id.imageView);
+            cardImageView = itemView.findViewById(R.id.bookImageView);
             titleTextView = itemView.findViewById(R.id.card_title);
             subTitleTextView = itemView.findViewById(R.id.card_subtitle);
             favouriteButton=itemView.findViewById(R.id.favouriteButton);
@@ -119,18 +108,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
 
-        public void bindData(final DataModel dataModel, Context context) {
+        public void bindData(final BookDataModel bookDataModel, Context context) {
             /*cardImageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_dashboard_black_24dp));
-            ti0tleTextView.setText(dataModel.getTitle());
-            subTitleTextView.setText(dataModel.getSubTitle());*/
+            ti0tleTextView.setText(bookDataModel.getTitle());
+            subTitleTextView.setText(bookDataModel.getSubTitle());*/
 
-            //cardImageView.setImageBitmap(dataModel.getImage());
-//            Log.i("ye ha url",dataModel.getDownloadUri());
+            //cardImageView.setImageBitmap(bookDataModel.getImage());
+//            Log.i("ye ha url",bookDataModel.getDownloadUri());
 
             muserReference.child("Favourites").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.hasChild(dataModel.getRefKey()))
+                    if(dataSnapshot.hasChild(bookDataModel.getRefKey()))
                         favouriteButton.setImageResource(R.drawable.ic_favorite_orange_24dp);
                     else favouriteButton.setImageResource(R.drawable.ic_favorite_black_24dp);
                 }
@@ -141,9 +130,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 }
             });
 
-            setImage(dataModel,cardImageView,context);
-            titleTextView.setText(dataModel.getTitle());
-            subTitleTextView.setText(dataModel.getAuthor());
+            setImage(bookDataModel,cardImageView,context);
+            titleTextView.setText(bookDataModel.getTitle());
+            subTitleTextView.setText(bookDataModel.getAuthor());
         }
 
         @Override
@@ -159,14 +148,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
 
-    public static void setImage(DataModel dataModel, final ImageView cardImageView,Context mContext){
+    public static void setImage(BookDataModel bookDataModel, final ImageView cardImageView, Context mContext){
 
 
        // FirebaseStorage storage=FirebaseStorage.getInstance();
-        //StorageReference httpsReference = storage.getReferenceFromUrl(dataModel.getDownloadUri());
+        //StorageReference httpsReference = storage.getReferenceFromUrl(bookDataModel.getDownloadUri());
 
 
-        Picasso.with(mContext).load(dataModel.getDownloadUri()).placeholder(R.drawable.ic_dashboard_black_24dp).into(cardImageView);
+        Picasso.with(mContext).load(bookDataModel.getDownloadUri()).placeholder(R.drawable.ic_dashboard_black_24dp).into(cardImageView);
 
 
        /* try {

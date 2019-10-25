@@ -1,21 +1,15 @@
 package com.example.bookselling;
 
 import android.app.SearchManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SearchEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,21 +19,15 @@ import com.algolia.search.saas.CompletionHandler;
 import com.algolia.search.saas.Index;
 import com.algolia.search.saas.Query;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import org.json.JSONObject;
 
@@ -103,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         index.searchAsync(new Query("j"), completionHandler);
 
 
-        ExploreFragment.dataModelList = new ArrayList<>();
+        ExploreFragment.bookDataModelList = new ArrayList<>();
             fm.beginTransaction().add(R.id.fragment_container, fragment3, "3").hide(fragment3).commit();
             fm.beginTransaction().add(R.id.fragment_container, fragment2, "2").hide(fragment2).commit();
             fm.beginTransaction().add(R.id.fragment_container, fragment1, "1").commit();

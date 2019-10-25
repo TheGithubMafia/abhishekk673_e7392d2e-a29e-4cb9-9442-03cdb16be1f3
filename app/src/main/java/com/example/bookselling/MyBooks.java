@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuInflater;
@@ -28,7 +27,7 @@ import java.util.List;
 
 public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.OnItemListener,PopupMenu.OnMenuItemClickListener  {
 
-    private List<DataModel> MyBooksList;
+    private List<BookDataModel> MyBooksList;
     private int selectedItem;
 
     private RecyclerView mRecyclerView;
@@ -54,7 +53,7 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
 
 
         /*for (int i = 1; i <= 20; ++i) {
-            dataModelList.add(new DataModel(i));
+            bookDataModelList.add(new BookDataModel(i));
         }*/
 
         // use this setting to improve performance if you know that changes
@@ -82,11 +81,11 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
         mChildEventListener=new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                DataModel dataModel=dataSnapshot.getValue(DataModel.class);
-                dataModel.setRefKey(dataSnapshot.getKey());
-                MyBooksList.add(dataModel);
+                BookDataModel bookDataModel =dataSnapshot.getValue(BookDataModel.class);
+                bookDataModel.setRefKey(dataSnapshot.getKey());
+                MyBooksList.add(bookDataModel);
                 mAdapter.notifyDataSetChanged();
-                Log.i("expfr",dataModel.getDownloadUri());
+                Log.i("expfr", bookDataModel.getDownloadUri());
             }
 
             @Override
