@@ -2,7 +2,6 @@ package com.example.bookselling;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -21,9 +20,7 @@ import android.widget.ImageView;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,9 +29,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import java.net.URI;
-import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -106,7 +100,7 @@ public class SellFragment extends Fragment {
                           Uri downloadUri = task.getResult();
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             String userId=user.getUid();
-                            DataModel book=new DataModel(title,author,description,price,downloadUri.toString(),userId);
+                            BookDataModel book=new BookDataModel(title,author,description,price,downloadUri.toString(),userId);
 
                             mBooksReference.push().setValue(book);
                             Log.i("ye",downloadUri.toString());
@@ -120,7 +114,7 @@ public class SellFragment extends Fragment {
 
 
 
-               // ExploreFragment.dataModelList.add(new DataModel(title,author,description,price,downloadImageUri));
+               // ExploreFragment.bookDataModelList.add(new BookDataModel(title,author,description,price,downloadImageUri));
 
 
 

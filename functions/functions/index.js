@@ -1,12 +1,4 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-admin.initializeApp();
-
-// Authenticate to Algolia Database.
-// TODO: Make sure you configure the `algolia.app_id` and `algolia.api_key` Google Cloud environment variables.
 const algoliasearch = require('algoliasearch');
-const algolia = algoliasearch("IZDGA4GCBK", "0d030bc6e78332bbbc83f85017c87eec");
-
 const dotenv = require('dotenv');
 const firebase = require('firebase');
 
@@ -15,38 +7,53 @@ dotenv.config();
 
 // configure firebase
 firebase.initializeApp({
-  databaseURL: "https://bookselling-af219.firebaseio.com/",
+  databaseURL: process.env.FIREBASE_DATABASE_URL,
 });
 const database = firebase.database();
 
 // configure algolia
+const algolia = algoliasearch(
+  process.env.ALGOLIA_APP_ID,
+  process.env.ALGOLIA_API_KEY
+);
+const index = algolia.initIndex(process.env.ALGOLIA_INDEX_NAME);
 
-const index = algolia.initIndex("Books");
 
 
-// Get all contacts from Firebase
-exports.indexUpdate=database.ref('/Books').once('value', Books => {
-  // Build an array of all records to push to Algolia
-  const records = [];
-  Books.forEach(contact => {
-    // get the key and data from the snapshot
-    const childKey = Book.key;
-    const childData = Book.val();
-    // We set the Algolia objectID as the Firebase .key
-    childData.objectID = childKey;
-    // Add object for indexing
-    records.push(childData);
-  });
+const contactsRef = database.ref('/books');
+contactsRef.on('child_added', addOrUpdateIndexRecord);
+contactsRef.on('child_changed', addOrUpdateIndexRecord);
+contactsRef.on('child_removed', deleteIndexRecord);
 
-  // Add or update new objects
+function addOrUpdateIndexRecord(book) {
+  // Get Firebase object
+  const record = book.val();
+  // Specify Algolia's objectID using the Firebase object key
+  record.objectID = book.key;
+  // Add or update object
   index
-    .saveObjects(records)
+    .saveObject(record)
     .then(() => {
-      console.log('Contacts imported into Algolia');
+      console.log('Firebase object indexed in Algolia', record.objectID);
     })
     .catch(error => {
-      console.error('Error when importing contact into Algolia', error);
+      console.error('Error when indexing contact into Algolia', error);
       process.exit(1);
     });
-});
+}
+
+function deleteIndexRecord({key}) {
+  // Get Algolia's objectID from the Firebase object key
+  const objectID = key;
+  // Remove the object from Algolia
+  index
+    .deleteObject(objectID)
+    .then(() => {
+      console.log('Firebase object deleted from Algolia', objectID);
+    })
+    .catch(error => {
+      console.error('Error when deleting contact from Algolia', error);
+      process.exit(1);
+    });
+}
 

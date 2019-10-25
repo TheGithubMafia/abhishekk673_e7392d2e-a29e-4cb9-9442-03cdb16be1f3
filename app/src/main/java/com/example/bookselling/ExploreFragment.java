@@ -1,13 +1,11 @@
 package com.example.bookselling;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,9 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -25,7 +20,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -33,16 +27,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 
 public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnItemListener {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    static public List<DataModel> dataModelList;
+    static public List<BookDataModel> bookDataModelList;
 
     private FirebaseDatabase mdatabase;
     private DatabaseReference mBooksReference;
@@ -87,7 +78,7 @@ Log.i("abc","Oncreateview");
 
 
         /*for (int i = 1; i <= 20; ++i) {
-            dataModelList.add(new DataModel(i));
+            bookDataModelList.add(new BookDataModel(i));
         }*/
 
         // use this setting to improve performance if you know that changes
@@ -100,11 +91,11 @@ Log.i("abc","Oncreateview");
 
         mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+      //  mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
 
         // specify an adapter and pass in our data model list
 
-        mAdapter = new RecyclerViewAdapter(dataModelList, getContext(),this);
+        mAdapter = new RecyclerViewAdapter(bookDataModelList, getContext(),this);
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
@@ -116,11 +107,11 @@ Log.i("abc","Oncreateview");
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Log.i("fsd",dataSnapshot.getValue().toString());
-                DataModel dataModel=dataSnapshot.getValue(DataModel.class);
-                dataModel.setRefKey(dataSnapshot.getKey());
-                dataModelList.add(dataModel);
+                BookDataModel bookDataModel =dataSnapshot.getValue(BookDataModel.class);
+                bookDataModel.setRefKey(dataSnapshot.getKey());
+                bookDataModelList.add(bookDataModel);
                 mAdapter.notifyDataSetChanged();
-                Log.i("expfr",dataModel.getDownloadUri());
+                Log.i("expfr", bookDataModel.getDownloadUri());
             }
 
             @Override
@@ -194,7 +185,7 @@ Toast.makeText(getContext(),"1"+position,Toast.LENGTH_SHORT).show();
                 if(btnDrawable.getConstantState()==unselected.getConstantState()) {
 
                     btn.setImageResource(R.drawable.ic_favorite_orange_24dp);
-                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(dataModelList.get(position).getRefKey()).setValue("True");
+                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(bookDataModelList.get(position).getRefKey()).setValue("True");
 
                     // Create the new Animation to apply to the ImageButton.
                     btn.startAnimation(inAnimation);
@@ -203,7 +194,7 @@ Toast.makeText(getContext(),"1"+position,Toast.LENGTH_SHORT).show();
                 else{
                     btn.setImageResource(R.drawable.ic_favorite_black_24dp);
                     btn.startAnimation(inAnimation);
-                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(dataModelList.get(position).getRefKey()).removeValue();
+                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(bookDataModelList.get(position).getRefKey()).removeValue();
                 }
 
             }

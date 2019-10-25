@@ -9,7 +9,7 @@ import android.util.Log;
 import java.sql.Ref;
 import java.util.Locale;
 
-public class DataModel {
+public class BookDataModel {
     private String title;
     private String author;
 
@@ -22,7 +22,7 @@ public class DataModel {
 
    // private Bitmap image;
 
-    public DataModel(){}
+    public BookDataModel(){}
 
 
     public String getTitle() {
@@ -60,7 +60,7 @@ public class DataModel {
     //}
 
 
-    public DataModel(String title, String author, String description, int price,String downloadUri,String userId) {
+    public BookDataModel(String title, String author, String description, int price, String downloadUri, String userId) {
 
         this.title = title;
         this.author = author;
@@ -73,7 +73,7 @@ public class DataModel {
 
 
 
-   /* public DataModel(int id) {
+   /* public BookDataModel(int id) {
         imageDrawable =R.drawable.ic_dashboard_black_24dp;
         title = String.format(Locale.ENGLISH, "Title %d Goes Here", id);
         subTitle = String.format(Locale.ENGLISH, "Sub title %d goes here", id);
