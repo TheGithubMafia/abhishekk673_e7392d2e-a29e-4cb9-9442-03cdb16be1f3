@@ -17,7 +17,7 @@ public class BookDataModel {
     private int price;
     private String downloadUri;
     private String userId;
-
+fsdfs
     private transient String RefKey;
 
    // private Bitmap image;
