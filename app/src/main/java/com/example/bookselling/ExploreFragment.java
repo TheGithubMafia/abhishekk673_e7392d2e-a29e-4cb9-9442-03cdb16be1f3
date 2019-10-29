@@ -1,7 +1,9 @@
 package com.example.bookselling;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,12 +22,17 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 import java.util.List;
 
@@ -161,6 +168,10 @@ Toast.makeText(getContext(),"1"+position,Toast.LENGTH_SHORT).show();
     @Override
     public void OnButton2Click(int position, View view) {
                 Toast.makeText(getContext(),"2"+position,Toast.LENGTH_SHORT).show();
+
+                String pushId=bookDataModelList.get(position).getRefKey();
+
+        generateDynamicLink(generateDeepLinkUrl(pushId));
     }
 
     @Override
@@ -209,5 +220,111 @@ Toast.makeText(getContext(),"1"+position,Toast.LENGTH_SHORT).show();
 
     }
 
+    /**
+     * This will generate my link with the pushKey of the data stored above
+     * @param pushID of the current set of data stored in Firebase Realtime Database
+     * @return Returns a link that matches my AndroidManifest data block
+     */
+    private String generateDeepLinkUrl(String pushID) {
+
+
+  String url= "https://bookselling.com/shared_content=" + pushID;
+
+  return url;
+
+    }
+
+    /**
+     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this lik myawesomeapp.com/shared_content=pushID
+     * @param  url of the custom page we created above with the custom data of the user
+     */
+    private void generateDynamicLink(final String url) {
+
+//Since this will take a little bit to generate I just make a simple dialog that is the same as a ProgressDialog displaying to the user a message that says that the link to share is beign generated
+
+//        final Dialog dialog = new Dialog(getContext());
+//        String generandoRecorrido = getString(R.string.generando_recorrido);
+//        DialogsUtils.iniSaveDialog(dialog, generandoRecorrido);
+
+//setDomainUriPrefix should host a link like this https://myawesomeapp.page.link , remember to use .page.link !!
+
+//The androidParameters is just the package name of the app , this is because if the app is not installed it will prompt the user to the playstore to download it, package example com.gaston.myapp
+
+//        FirebaseDynamicLinks.getInstance().createDynamicLink()
+//                .setLink(Uri.parse(url))
+//                .setDomainUriPrefix(getString(R.string.page_link))
+//                .setAndroidParameters(
+//                        new DynamicLink.AndroidParameters.Builder("com.example.bookselling")
+//                                .setMinimumVersion(102)
+//                                .build())
+//                .buildShortDynamicLink(ShortDynamicLink.Suffix.SHORT).addOnCompleteListener( new OnCompleteListener<ShortDynamicLink>() {
+//            @Override
+//            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+//                if (task.isSuccessful()) {
+//// we get the dynamic link generated and pass it to the shareDeepLink method
+//                    Uri shortURL = task.getResult().getShortLink();
+//                    Log.d("short link", "ShortLink:" + shortURL);
+//
+//                   // dialog.dismiss();
+//                    shareDeepLink(url);
+//                } else {
+//                   // dialog.dismiss();
+//                    Log.e("err",task.getException().toString());
+//                    Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+
+
+
+        DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse(url))
+                .setDomainUriPrefix("https://bookselling.page.link")
+                // Open links with this app on Android
+                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
+                // Open links with com.example.ios on iOS
+                .setIosParameters(new DynamicLink.IosParameters.Builder("com.example.ios").build())
+                .buildDynamicLink();
+
+        Uri dynamicLinkUri = dynamicLink.getUri();
+       // shareDeepLink(dynamicLinkUri.toString());
+
+
+
+        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse(url))
+                .setDomainUriPrefix("https://bookselling.page.link")
+                // Set parameters
+                // ...
+                .buildShortDynamicLink()
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                        if (task.isSuccessful()) {
+                            // Short link created
+                            Uri shortLink = task.getResult().getShortLink();
+                            Uri flowchartLink = task.getResult().getPreviewLink();
+
+                            shareDeepLink(shortLink.toString());
+                        } else {
+                            // Error
+                            // ...
+                        }
+                    }
+                });
+    }
+    /**
+     * We just share this link with any provider that the user may want
+     * @param  url generated by the method above
+     */
+    private void shareDeepLink(String url) {
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! check this content out  " + url);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check this out !");
+        startActivity(Intent.createChooser(shareIntent, "Share this cool content"));
+
+    }
 }
 

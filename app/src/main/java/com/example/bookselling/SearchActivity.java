@@ -1,16 +1,22 @@
 package com.example.bookselling;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import com.algolia.search.saas.AlgoliaException;
@@ -35,8 +41,9 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        bookDataModelArrayList=new ArrayList<>();
 
+        bookDataModelArrayList=new ArrayList<>();
+        bookDataModelArrayList.clear();
         recyclerView=findViewById(R.id.searchRecyclerView);
 
        // Toast.makeText(this,"Gdfgd",Toast.LENGTH_SHORT).show();
@@ -49,6 +56,7 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        bookDataModelArrayList.clear();
         handleIntent(intent);
     }
 
@@ -162,5 +170,71 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
     @Override
     public void OnFavButtonClick(int position, View view) {
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.explore_action_bar, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+
+
+//        searchView.setSearchableInfo( searchManager.getSearchableInfo(new
+//                ComponentName(this,SearchActivity.class)));
+        searchView.setSearchableInfo( searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setQueryRefinementEnabled(true);
+//
+        //   setSearchTextColour(searchView);
+//        setSearchIcons(searchView);
+//
+
+
+        int searchEditTextId = R.id.search_src_text;
+        final AutoCompleteTextView searchEditText = (AutoCompleteTextView) searchView.findViewById(searchEditTextId);
+        final View dropDownAnchor = searchView.findViewById(searchEditText.getDropDownAnchor());
+
+        if (dropDownAnchor != null) {
+            dropDownAnchor.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+
+                    // screen width
+                    int screenWidthPixel = SearchActivity.this.getResources().getDisplayMetrics().widthPixels;
+                    searchEditText.setDropDownWidth(screenWidthPixel);
+                    searchEditText.setDropDownBackgroundDrawable(getDrawable(R.drawable.suggestions_background));
+
+                }
+            });
+        }
+
+        return true;
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_favorite:
+                Intent intent=new Intent(this,FavouritesActivity.class);
+                startActivity(intent);
+                Log.i("asdad","sad");
+                return true;
+
+//            case R.id.search:
+//                onSearchRequested();
+//                return  true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
