@@ -18,6 +18,8 @@ const algolia = algoliasearch(
 );
 const index = algolia.initIndex(process.env.ALGOLIA_INDEX_NAME);
 
+var app = require('http');
+app.createServer().listen(process.env.PORT || 8080);
 
 
 const contactsRef = database.ref('/books');

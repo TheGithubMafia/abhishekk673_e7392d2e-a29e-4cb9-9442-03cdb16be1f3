@@ -74,8 +74,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
         public ViewHolder(@NonNull final View itemView, final OnItemListener onItemListener) {
             super(itemView);
-            Action1=itemView.findViewById(R.id.buyButton);
-            Action2=itemView.findViewById(R.id.addToCartButton);
+            Action1=itemView.findViewById(R.id.contactSellerButton);
+            Action2=itemView.findViewById(R.id.shareButton);
             this.onItemListener=onItemListener;
             cardImageView = itemView.findViewById(R.id.bookImageView);
             titleTextView = itemView.findViewById(R.id.nameTextView);
