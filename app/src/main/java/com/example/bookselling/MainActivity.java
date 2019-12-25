@@ -75,22 +75,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         BottomNavigationView navigation = findViewById(R.id.navigation);
 
-        Client client = new Client("IZDGA4GCBK", "0d030bc6e78332bbbc83f85017c87eec");
-        Index index = client.getIndex("Books");
-
-        CompletionHandler completionHandler = new CompletionHandler() {
-            @Override
-            public void requestCompleted(JSONObject content, AlgoliaException error) {
-                // [...]
-                Log.e("op",content.toString());
-            }
-        };
-// Search for a first name
-        index.searchAsync(new Query("mai hi hu"), completionHandler);
-// Search for a first name with typo
-        index.searchAsync(new Query("j"), completionHandler);
-
-
         ExploreFragment.bookDataModelList = new ArrayList<>();
             fm.beginTransaction().add(R.id.fragment_container, fragment3, "3").hide(fragment3).commit();
             fm.beginTransaction().add(R.id.fragment_container, fragment2, "2").hide(fragment2).commit();
@@ -194,44 +178,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public boolean onSearchRequested() {
-//        return super.onSearchRequested();
-//    }
 
-
-
-
-//    private void setSearchTextColour(SearchView searchView) {
-//        int searchPlateId = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
-//        EditText searchPlate = (EditText) searchView.findViewById(searchPlateId);
-//        searchPlate.setTextColor(Color.RED);
-//       // searchPlate.setBackgroundResource(R.drawable.edit_text_holo_light);
-//        searchPlate.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
-//    }
-//
-//
-//    private void setSearchIcons(SearchView searchView) {
-//        try {
-//            Field searchField = SearchView.class.getDeclaredField("mCloseButton");
-//            searchField.setAccessible(true);
-//            ImageView closeBtn = (ImageView) searchField.get(searchView);
-//            closeBtn.setImageResource(R.drawable.ic_menu_cancel);
-//
-//            searchField = SearchView.class.getDeclaredField("mVoiceButton");
-//            searchField.setAccessible(true);
-//            ImageView voiceBtn = (ImageView) searchField.get(searchView);
-//            voiceBtn.setImageResource(R.drawable.ic_menu_voice_input);
-//
-//            ImageView searchButton = (ImageView) searchView.findViewById(R.id.abs__search_button);
-//            searchButton.setImageResource(R.drawable.ic_menu_search);
-//
-//        } catch (NoSuchFieldException e) {
-//            Log.e("SearchView", e.getMessage(), e);
-//        } catch (IllegalAccessException e) {
-//            Log.e("SearchView", e.getMessage(), e);
-//        }
-//    }
 
 }
 

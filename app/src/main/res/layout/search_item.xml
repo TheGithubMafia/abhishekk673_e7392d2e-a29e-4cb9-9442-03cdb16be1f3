@@ -53,22 +53,22 @@
             app:layout_constraintTop_toBottomOf="@+id/bookImageView">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buyButton"
+                android:id="@+id/contactSellerButton"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:width="0dp"
-                android:text="Buy" />
+                android:text="Contact Seller" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/addToCartButton"
+                android:id="@+id/shareButton"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:width="0dp"
-                android:text="Add to Cart" />
+                android:text="Share" />
 
         </LinearLayout>
 

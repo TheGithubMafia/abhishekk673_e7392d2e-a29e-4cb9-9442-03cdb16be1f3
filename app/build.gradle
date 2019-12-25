@@ -46,6 +46,12 @@ dependencies {
 
     implementation 'com.algolia:algoliasearch-android:3.+'
 
+    implementation 'de.hdodenhof:circleimageview:3.0.1'
+
+
+
+    implementation 'com.google.firebase:firebase-dynamic-links:16.1.5'
+
 
 }
 apply plugin: 'com.google.gms.google-services'
