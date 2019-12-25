@@ -34,6 +34,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import static android.app.Activity.RESULT_OK;
+import static android.view.View.Z;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class SellFragment extends Fragment {
 
@@ -152,5 +158,28 @@ public class SellFragment extends Fragment {
                 }
             }
         });
+
+        //*dirty trick to make dyno of heroku active on posting new book*//
+        new Thread(){
+            public void run(){
+
+                try {
+                    URL url = new URL("https://tranquil-mountain-80007.herokuapp.com/");
+
+                    HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+                    urlc.setConnectTimeout(1000 * 30);// mTimeout is in seconds
+                    urlc.connect();
+                    urlc.getContent();
+                    Log.e("ping","heroku00");
+
+                } catch (MalformedURLException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }.start();
+
     }
 }
