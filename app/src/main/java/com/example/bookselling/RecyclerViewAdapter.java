@@ -1,6 +1,7 @@
 package com.example.bookselling;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,8 +9,10 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,6 +23,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
@@ -27,8 +31,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     private List<BookDataModel> bookDataModelList;
-    private Context mContext;
+    public Context mContext;
     private OnItemListener mOnItemListener;
+
 
     public RecyclerViewAdapter(List<BookDataModel> modelList, Context context, OnItemListener mOnItemListener) {
         bookDataModelList = modelList;
@@ -42,7 +47,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item, parent, false);
         // Return a new view holder
-        return new MyViewHolder(view,mOnItemListener);
+        return new MyViewHolder(view,mOnItemListener,mContext);
     }
 
     @Override
@@ -65,21 +70,27 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         Button Action1;
         Button Action2;
         ImageButton favouriteButton;
+        ImageView userImageview;
+        TextView userNameTextView;
+        Context viewHolderContext;
 
         private FirebaseDatabase mdatabase=FirebaseDatabase.getInstance();
         private FirebaseAuth mAuth=FirebaseAuth.getInstance();
 
         private DatabaseReference muserReference=mdatabase.getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
-        public MyViewHolder(@NonNull final View itemView, final OnItemListener onItemListener) {
+        public MyViewHolder(@NonNull final View itemView, final OnItemListener onItemListener,Context viewHolderContext) {
             super(itemView);
             Action1=itemView.findViewById(R.id.action_button_1);
+            this.viewHolderContext=viewHolderContext;
             Action2=itemView.findViewById(R.id.action_button_2);
             this.onItemListener=onItemListener;
             cardImageView = itemView.findViewById(R.id.bookImageView);
             titleTextView = itemView.findViewById(R.id.card_title);
             subTitleTextView = itemView.findViewById(R.id.card_subtitle);
             favouriteButton=itemView.findViewById(R.id.favouriteButton);
+            userImageview=itemView.findViewById(R.id.userImageView);
+            userNameTextView=itemView.findViewById(R.id.userNameTextView);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
 
@@ -88,6 +99,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             favouriteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+
+
                     onItemListener.OnFavButtonClick(getAdapterPosition(),itemView);
                 }
             });
@@ -108,13 +122,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
 
-        public void bindData(final BookDataModel bookDataModel, Context context) {
+        public void bindData(final BookDataModel bookDataModel, final Context context) {
             /*cardImageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_dashboard_black_24dp));
             ti0tleTextView.setText(bookDataModel.getTitle());
             subTitleTextView.setText(bookDataModel.getSubTitle());*/
 
             //cardImageView.setImageBitmap(bookDataModel.getImage());
 //            Log.i("ye ha url",bookDataModel.getDownloadUri());
+
+
+            FirebaseDatabase mdatabase=FirebaseDatabase.getInstance();
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            DatabaseReference muserReference=mdatabase.getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
             muserReference.child("Favourites").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -133,6 +152,37 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             setImage(bookDataModel,cardImageView,context);
             titleTextView.setText(bookDataModel.getTitle());
             subTitleTextView.setText(bookDataModel.getAuthor());
+
+            muserReference.child("image url").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                   String url=dataSnapshot.getValue(String.class);
+
+                   Picasso.with(context).load(url).placeholder(R.drawable.ic_round_account_button_with_user_inside).into(userImageview);
+                    Log.e("user image url",url);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            muserReference.child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String userName=dataSnapshot.getValue(String.class);
+                    userNameTextView.setText(userName);
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+
         }
 
         @Override
@@ -142,6 +192,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public boolean onLongClick(View view) {
+            Toast.makeText(viewHolderContext, "long clik" + getAdapterPosition(), Toast.LENGTH_SHORT).show();
           onItemListener.OnBookLongClick(getAdapterPosition(),view);
           return true;
         }
@@ -186,8 +237,8 @@ public interface OnItemListener{
         void OnBookClick(int position);
         void OnBookLongClick(int position,View view);
         void OnButton1Click(int position,View view);
-    void OnButton2Click(int position,View view);
-    void OnFavButtonClick(int position,View view);
+        void OnButton2Click(int position,View view);
+        void OnFavButtonClick(int position,View view);
     }
 
 }
