@@ -1,16 +1,30 @@
 package com.example.bookselling;
 
+import static com.example.bookselling.ExploreFragment.inAnimation;
+import static com.example.bookselling.ExploreFragment.mAuth;
+import static com.example.bookselling.ExploreFragment.mUsersReference;
+import static com.example.bookselling.ExploreFragment.outAnimation;
+
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -18,12 +32,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
@@ -33,6 +52,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private List<BookDataModel> bookDataModelList;
     public Context mContext;
     private OnItemListener mOnItemListener;
+
+
 
 
     public RecyclerViewAdapter(List<BookDataModel> modelList, Context context, OnItemListener mOnItemListener) {
@@ -231,14 +252,75 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             e.printStackTrace();
         }*/
 
+
 }
 
-public interface OnItemListener{
-        void OnBookClick(int position);
+
+
+    public interface OnItemListener{
+        default void OnBookClick(int position){
+            Log.i("Book", Integer.toString(position));
+
+            Intent intent = new Intent(getCon(), BookDetailsActivity.class);
+            intent.putExtra("position", position);
+            getCon().startActivity(intent);
+        }
         void OnBookLongClick(int position,View view);
-        void OnButton1Click(int position,View view);
+
+        default void OnButton1Click(int position,View view){
+            Toast.makeText(getCon(), "1" + position, Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:9999999999"));
+            getCon().startActivity(intent);
+        }
+
+
+
         void OnButton2Click(int position,View view);
-        void OnFavButtonClick(int position,View view);
+
+        default void OnFavButtonClick(int position,View view){
+            final ImageButton btn = view.findViewById(R.id.favouriteButton);
+            outAnimation.setAnimationListener(new Animation.AnimationListener() {
+
+                // Other callback methods omitted for clarity.
+
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                public void onAnimationEnd(Animation animation) {
+
+                    // Modify the resource of the ImageButton
+                    Drawable unselected = getCon().getResources().getDrawable(R.drawable.ic_favorite_black_24dp);
+                    Drawable selected = getCon().getResources().getDrawable(R.drawable.ic_favorite_orange_24dp);
+                    Drawable btnDrawable = btn.getDrawable();
+
+                    if (btnDrawable.getConstantState() == unselected.getConstantState()) {
+
+                        btn.setImageResource(R.drawable.ic_favorite_orange_24dp);
+                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(getBookDataModelList().get(position).getRefKey()).setValue("True");
+
+                        // Create the new Animation to apply to the ImageButton.
+                        btn.startAnimation(inAnimation);
+                    } else {
+                        btn.setImageResource(R.drawable.ic_favorite_black_24dp);
+                        btn.startAnimation(inAnimation);
+                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(getBookDataModelList().get(position).getRefKey()).removeValue();
+                    }
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            btn.startAnimation(outAnimation);
+        }
+        Context getCon();
+        List<BookDataModel> getBookDataModelList();
     }
 
 }

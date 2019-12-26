@@ -1,5 +1,6 @@
 package com.example.bookselling;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -31,6 +32,7 @@ import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnItemListener {
@@ -165,14 +167,6 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
         startActivity(intent);
     }
 
-    @Override
-    public void OnButton2Click(int position, View view) {
-        Toast.makeText(getContext(), "2" + position, Toast.LENGTH_SHORT).show();
-
-        String pushId = bookDataModelList.get(position).getRefKey();
-
-        generateDynamicLink(generateDeepLinkUrl(pushId));
-    }
 
     @Override
     public void OnFavButtonClick(final int position, View view) {
@@ -218,6 +212,25 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
     }
 
+    @Override
+    public Context getCon() {
+        return getContext();
+    }
+
+    @Override
+    public List<BookDataModel> getBookDataModelList() {
+        return  bookDataModelList;
+    }
+
+    @Override
+    public void OnButton2Click(int position, View view) {
+        Toast.makeText(getContext(), "2" + position, Toast.LENGTH_SHORT).show();
+
+        String pushId = bookDataModelList.get(position).getRefKey();
+
+        generateDynamicLink(generateDeepLinkUrl(pushId));
+    }
+
     /**
      * This will generate my link with the pushKey of the data stored above
      *
@@ -233,48 +246,13 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
     }
 
+
     /**
      * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this lik myawesomeapp.com/shared_content=pushID
      *
      * @param url of the custom page we created above with the custom data of the user
      */
     private void generateDynamicLink(final String url) {
-
-//Since this will take a little bit to generate I just make a simple dialog that is the same as a ProgressDialog displaying to the user a message that says that the link to share is beign generated
-
-//        final Dialog dialog = new Dialog(getContext());
-//        String generandoRecorrido = getString(R.string.generando_recorrido);
-//        DialogsUtils.iniSaveDialog(dialog, generandoRecorrido);
-
-//setDomainUriPrefix should host a link like this https://myawesomeapp.page.link , remember to use .page.link !!
-
-//The androidParameters is just the package name of the app , this is because if the app is not installed it will prompt the user to the playstore to download it, package example com.gaston.myapp
-
-//        FirebaseDynamicLinks.getInstance().createDynamicLink()
-//                .setLink(Uri.parse(url))
-//                .setDomainUriPrefix(getString(R.string.page_link))
-//                .setAndroidParameters(
-//                        new DynamicLink.AndroidParameters.Builder("com.example.bookselling")
-//                                .setMinimumVersion(102)
-//                                .build())
-//                .buildShortDynamicLink(ShortDynamicLink.Suffix.SHORT).addOnCompleteListener( new OnCompleteListener<ShortDynamicLink>() {
-//            @Override
-//            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-//                if (task.isSuccessful()) {
-//// we get the dynamic link generated and pass it to the shareDeepLink method
-//                    Uri shortURL = task.getResult().getShortLink();
-//                    Log.d("short link", "ShortLink:" + shortURL);
-//
-//                   // dialog.dismiss();
-//                    shareDeepLink(url);
-//                } else {
-//                   // dialog.dismiss();
-//                    Log.e("err",task.getException().toString());
-//                    Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
-
 
         DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(url))

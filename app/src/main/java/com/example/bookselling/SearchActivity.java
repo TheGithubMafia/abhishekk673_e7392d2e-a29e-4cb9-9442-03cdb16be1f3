@@ -40,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.bookselling.ExploreFragment.bookDataModelList;
 import static com.example.bookselling.ExploreFragment.inAnimation;
@@ -163,26 +164,12 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
 
     }
 
-    @Override
-    public void OnBookClick(int position) {
-
-    }
 
     @Override
     public void OnBookLongClick(int position, View view) {
 
     }
 
-    @Override
-    public void OnButton1Click(int position, View view) {
-
-        Toast.makeText(this, "1" + position, Toast.LENGTH_SHORT).show();
-
-        Intent intent = new Intent(Intent.ACTION_DIAL);
-        intent.setData(Uri.parse("tel:9999999999"));
-        startActivity(intent);
-
-    }
 
     @Override
     public void OnButton2Click(int position, View view) {
@@ -193,48 +180,15 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
         generateDynamicLink(generateDeepLinkUrl(pushId));
     }
 
+
     @Override
-    public void OnFavButtonClick(final int position, View view) {
+    public Context getCon() {
+        return this;
+    }
 
-        final ImageButton btn = view.findViewById(R.id.favButton);
-        outAnimation.setAnimationListener(new Animation.AnimationListener() {
-
-            // Other callback methods omitted for clarity.
-
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            public void onAnimationEnd(Animation animation) {
-
-                // Modify the resource of the ImageButton
-                Drawable unselected = getResources().getDrawable(R.drawable.ic_favorite_black_24dp);
-                Drawable selected = getResources().getDrawable(R.drawable.ic_favorite_orange_24dp);
-                Drawable btnDrawable = btn.getDrawable();
-
-                if (btnDrawable.getConstantState() == unselected.getConstantState()) {
-
-                    btn.setImageResource(R.drawable.ic_favorite_orange_24dp);
-                    mUsersReference.child(ExploreFragment.mAuth.getCurrentUser().getUid()).child("Favourites").child(bookDataModelArrayList.get(position).getRefKey()).setValue("True");
-
-                    // Create the new Animation to apply to the ImageButton.
-                    btn.startAnimation(inAnimation);
-                } else {
-                    btn.setImageResource(R.drawable.ic_favorite_black_24dp);
-                    btn.startAnimation(inAnimation);
-                    mUsersReference.child(ExploreFragment.mAuth.getCurrentUser().getUid()).child("Favourites").child(bookDataModelArrayList.get(position).getRefKey()).removeValue();
-                }
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        btn.startAnimation(outAnimation);
-
+    @Override
+    public List<BookDataModel> getBookDataModelList() {
+        return bookDataModelArrayList;
     }
 
     @Override
