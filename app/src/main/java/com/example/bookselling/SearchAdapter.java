@@ -1,13 +1,24 @@
 package com.example.bookselling;
 
+import static com.example.bookselling.ExploreFragment.inAnimation;
+import static com.example.bookselling.ExploreFragment.mAuth;
+import static com.example.bookselling.ExploreFragment.mUsersReference;
+import static com.example.bookselling.ExploreFragment.outAnimation;
+
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -80,7 +91,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
             cardImageView = itemView.findViewById(R.id.bookImageView);
             titleTextView = itemView.findViewById(R.id.nameTextView);
             subTitleTextView = itemView.findViewById(R.id.authorTextView);
-            favouriteButton=itemView.findViewById(R.id.favButton);
+            favouriteButton=itemView.findViewById(R.id.favouriteButton);
             priceTextView=itemView.findViewById(R.id.priceTextView);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -153,11 +164,69 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     }
 
     public interface OnItemListener{
-        void OnBookClick(int position);
+        default void OnBookClick(int position){
+            Log.i("Book", Integer.toString(position));
+
+            Intent intent = new Intent(getCon(), BookDetailsActivity.class);
+            intent.putExtra("position", position);
+            getCon().startActivity(intent);
+        }
         void OnBookLongClick(int position,View view);
-        void OnButton1Click(int position,View view);
+
+        default void OnButton1Click(int position,View view){
+            Toast.makeText(getCon(), "1" + position, Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:9999999999"));
+            getCon().startActivity(intent);
+        }
+
+
+
         void OnButton2Click(int position,View view);
-        void OnFavButtonClick(int position,View view);
+
+        default void OnFavButtonClick(int position,View view){
+            final ImageButton btn = view.findViewById(R.id.favouriteButton);
+            outAnimation.setAnimationListener(new Animation.AnimationListener() {
+
+                // Other callback methods omitted for clarity.
+
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                public void onAnimationEnd(Animation animation) {
+
+                    // Modify the resource of the ImageButton
+                    Drawable unselected = getCon().getResources().getDrawable(R.drawable.ic_favorite_black_24dp);
+                    Drawable selected = getCon().getResources().getDrawable(R.drawable.ic_favorite_orange_24dp);
+                    Drawable btnDrawable = btn.getDrawable();
+
+                    if (btnDrawable.getConstantState() == unselected.getConstantState()) {
+
+                        btn.setImageResource(R.drawable.ic_favorite_orange_24dp);
+                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(getBookDataModelList().get(position).getRefKey()).setValue("True");
+
+                        // Create the new Animation to apply to the ImageButton.
+                        btn.startAnimation(inAnimation);
+                    } else {
+                        btn.setImageResource(R.drawable.ic_favorite_black_24dp);
+                        btn.startAnimation(inAnimation);
+                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(getBookDataModelList().get(position).getRefKey()).removeValue();
+                    }
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            btn.startAnimation(outAnimation);
+        }
+        Context getCon();
+        List<BookDataModel> getBookDataModelList();
     }
 
 }
