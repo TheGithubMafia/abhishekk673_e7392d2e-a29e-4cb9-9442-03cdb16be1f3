@@ -1,16 +1,13 @@
 package com.example.bookselling;
 
-import android.Manifest;
-import android.content.Context;
+import static android.app.Activity.RESULT_CANCELED;
+
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Patterns;
@@ -25,40 +22,34 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import static android.app.Activity.RESULT_CANCELED;
-import static android.media.MediaRecorder.VideoSource.CAMERA;
-import static androidx.core.content.ContextCompat.checkSelfPermission;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
 
 public class AccountFragment extends Fragment {
 
+    private static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 422;
     View view;
-
     private TextView hostelTextView;
     private TextView nameTextView;
     private TextView rollNumbertextView;
@@ -69,31 +60,34 @@ public class AccountFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseStorage mFirebaseStorageInstance;
     private StorageReference mStorageReference;
-
-
     private String hostelName;
     private String name;
     private String phoneNumber;
     private String rollNumber;
-
-     private static final int MY_PERMISSIONS_REQUEST_READ_MEDIA = 422;
     private int GALLERY = 1, CAMERA = 2;
 
     private Uri selectedImage;
-    private   Bitmap selectedImageBitmap;
+    private Bitmap selectedImageBitmap;
+    private ImageView userImageView;
+
+//
+//    private FirebaseDatabase mdatabase=FirebaseDatabase.getInstance();
+//    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+//    private DatabaseReference muserReference=mdatabase.getReference().child("users").child(mAuth.getCurrentUser().getUid());
 
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_account, null);
         setHasOptionsMenu(true);
 
-        FloatingActionButton imageButton=view.findViewById(R.id.floatingActionButton);
+        FloatingActionButton imageButton = view.findViewById(R.id.floatingActionButton);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               // showPictureDialog();
+                // showPictureDialog();
                 choosePhotoFromGallery();
             }
         });
@@ -104,6 +98,7 @@ public class AccountFragment extends Fragment {
         rollNumbertextView = view.findViewById(R.id.rollNumberTextView);
         phonenumbertextView = view.findViewById(R.id.phoneTextView);
         emailTV = view.findViewById(R.id.emailTV);
+        userImageView = view.findViewById(R.id.userImageView);
 
         mAuth = FirebaseAuth.getInstance();
         mdatabase = FirebaseDatabase.getInstance();
@@ -113,6 +108,8 @@ public class AccountFragment extends Fragment {
 
 
         emailTV.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
+        setValues();
 
 
         Button logoutButton = view.findViewById(R.id.logoutButton);
@@ -157,33 +154,40 @@ public class AccountFragment extends Fragment {
 
     private void postUser() {
 
-        if (validate()) {
+        if (accountValidate()) {
 
 
-            mUsersReference.child(mAuth.getCurrentUser().getUid()).child("hostel name").setValue(hostelName);
+            mUsersReference.child(mAuth.getCurrentUser().getUid()).child("hostel name").setValue(
+                    hostelName);
             mUsersReference.child(mAuth.getCurrentUser().getUid()).child("name").setValue(name);
-            mUsersReference.child(mAuth.getCurrentUser().getUid()).child("phone number").setValue(phoneNumber);
-            mUsersReference.child(mAuth.getCurrentUser().getUid()).child("roll number").setValue(rollNumber);
+            mUsersReference.child(mAuth.getCurrentUser().getUid()).child("phone number").setValue(
+                    phoneNumber);
+            mUsersReference.child(mAuth.getCurrentUser().getUid()).child("roll number").setValue(
+                    rollNumber);
 
 
-            final StorageReference photoref=mStorageReference.child(selectedImage.getLastPathSegment());
-            UploadTask uploadTask=  photoref.putFile(selectedImage);
-            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                @Override
-                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                    if (!task.isSuccessful()) {
-                        throw task.getException();
-                    }
+            final StorageReference photoref = mStorageReference.child(
+                    selectedImage.getLastPathSegment());
+            UploadTask uploadTask = photoref.putFile(selectedImage);
+            Task<Uri> urlTask = uploadTask.continueWithTask(
+                    new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                        @Override
+                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task)
+                                throws Exception {
+                            if (!task.isSuccessful()) {
+                                throw task.getException();
+                            }
 
-                    // Continue with the task to get the download URL
-                    return photoref.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            // Continue with the task to get the download URL
+                            return photoref.getDownloadUrl();
+                        }
+                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
-                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("image url").setValue(downloadUri.toString());
+                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                                "image url").setValue(downloadUri.toString());
 
                     } else {
                         // Handle failures
@@ -197,7 +201,7 @@ public class AccountFragment extends Fragment {
 
     }
 
-    private boolean validate() {
+    private boolean accountValidate() {
         boolean valid = true;
 
 
@@ -222,6 +226,10 @@ public class AccountFragment extends Fragment {
 
         if (rollNumber.isEmpty()) {
             rollNumbertextView.setError("please enter your roll number");
+        }
+        if(selectedImage==null||selectedImage.toString().isEmpty()){
+            Toast.makeText(getContext(), "Please upload an image", Toast.LENGTH_SHORT).show();
+            valid=false;
         }
 
         return valid;
@@ -252,17 +260,18 @@ public class AccountFragment extends Fragment {
     }
 
     public void choosePhotoFromGallery() {
-        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
-            startActivityForResult(galleryIntent, GALLERY);
+        startActivityForResult(galleryIntent, GALLERY);
     }
 
     private void takePhotoFromCamera() {
 
         Intent photo = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri uri  = Uri.parse("file:///sdcard/photo.jpg");
+        Uri uri = Uri.parse("file:///sdcard/photo.jpg");
         photo.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
-        startActivityForResult(photo,CAMERA);
+        startActivityForResult(photo, CAMERA);
 
 //        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 //        startActivityForResult(intent, CAMERA);
@@ -275,12 +284,12 @@ public class AccountFragment extends Fragment {
             return;
         }
         if (requestCode == GALLERY) {
-            selectedImage=data.getData();
-            try{
-                Bitmap bitmap=MediaStore.Images.Media.getBitmap(getContext().getContentResolver(),selectedImage);
-                ImageView imageView=getView().findViewById(R.id.imageView2);
-                imageView.setImageBitmap(bitmap);
-            }catch (Exception e){
+            selectedImage = data.getData();
+            try {
+                 selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(),
+                        selectedImage);
+                userImageView.setImageBitmap(selectedImageBitmap);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -289,14 +298,14 @@ public class AccountFragment extends Fragment {
 
             File file = new File(Environment.getExternalStorageDirectory().getPath(), "photo.jpg");
             Uri uri = Uri.fromFile(file);
-            selectedImage=uri;
+            selectedImage = uri;
             Bitmap bitmap;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-              //  bitmap = cropAndScale(bitmap, 300); // if you mind scaling
-                ImageView imageView=getView().findViewById(R.id.imageView2);
-            imageView.setImageBitmap(bitmap);
-               // profileImageView.setImageBitmap(bitmap);
+                //  bitmap = cropAndScale(bitmap, 300); // if you mind scaling
+                ImageView imageView = getView().findViewById(R.id.imageView2);
+                imageView.setImageBitmap(bitmap);
+                // profileImageView.setImageBitmap(bitmap);
             } catch (FileNotFoundException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -309,7 +318,8 @@ public class AccountFragment extends Fragment {
 //            ImageView imageView=getView().findViewById(R.id.imageView2);
 //            imageView.setImageBitmap(selectedImageBitmap);
 //
-//            int permissionCheck = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//            int permissionCheck = ContextCompat.checkSelfPermission(getContext(), Manifest
+//            .permission.WRITE_EXTERNAL_STORAGE);
 //
 //            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
 //                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_MEDIA);
@@ -318,16 +328,78 @@ public class AccountFragment extends Fragment {
 //            }
 
 
-
         }
 
     }
 
+    private void setValues(){
+
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String userName=dataSnapshot.getValue(String.class);
+                nameTextView.setText(userName);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("hostel name").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String hostelName=dataSnapshot.getValue(String.class);
+                hostelTextView.setText(hostelName);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("roll number").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String rollNumber=dataSnapshot.getValue(String.class);
+                rollNumbertextView.setText(rollNumber);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("phone number").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String phoneNumber=dataSnapshot.getValue(String.class);
+                phonenumbertextView.setText(phoneNumber);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("image url").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String url=dataSnapshot.getValue(String.class);
+
+                if(url!=null)
+                    if(!url.isEmpty()){
+                Picasso.with(getContext()).load(url).placeholder(R.drawable.ic_round_account_button_with_user_inside).into(userImageView);
+                    selectedImage=Uri.parse(url);}
+                //Log.e("user image url",url);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
 
 
-
-
+    }
 
 
 }
