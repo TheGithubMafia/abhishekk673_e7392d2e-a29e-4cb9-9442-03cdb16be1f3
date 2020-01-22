@@ -19,6 +19,7 @@ import com.algolia.search.saas.CompletionHandler;
 import com.algolia.search.saas.Index;
 import com.algolia.search.saas.Query;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
@@ -173,6 +174,17 @@ public class MainActivity extends AppCompatActivity {
 //            case R.id.search:
 //                onSearchRequested();
 //                return  true;
+
+            case R.id.action_myBooks:
+                Intent myBooksIntent = new Intent(this, MyBooks.class);
+                startActivity(myBooksIntent);
+                return true;
+
+            case R.id.action_logOut:
+                FirebaseAuth.getInstance().signOut();
+                Intent logInIntent = new Intent(this, LoginActivity.class);
+                startActivity(logInIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

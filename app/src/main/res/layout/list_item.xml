@@ -82,28 +82,29 @@
             app:layout_constraintTop_toBottomOf="@+id/action_button_1" />
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/userImageView"
+            android:id="@+id/sellerImageView"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            app:civ_border_color="#000000"
+            app:civ_border_width="1dp"
             app:layout_constraintBottom_toTopOf="@+id/bookImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_round_account_button_with_user_inside"
-            tools:srcCompat="@tools:sample/avatars"
-            app:civ_border_width="1dp"
-            app:civ_border_color="#000000"/>
+            tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
-            android:id="@+id/userNameTextView"
+            android:id="@+id/sellerNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Shubham"
-            app:layout_constraintBottom_toBottomOf="@+id/userImageView"
-            app:layout_constraintStart_toEndOf="@+id/userImageView"
-            app:layout_constraintTop_toTopOf="@+id/userImageView" />
+            app:layout_constraintBottom_toBottomOf="@+id/sellerImageView"
+            app:layout_constraintStart_toEndOf="@+id/sellerImageView"
+            app:layout_constraintTop_toTopOf="@+id/sellerImageView" />
 
         <ImageButton
             android:id="@+id/favouriteButton"

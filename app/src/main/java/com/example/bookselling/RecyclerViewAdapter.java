@@ -91,8 +91,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         Button Action1;
         Button Action2;
         ImageButton favouriteButton;
-        ImageView userImageview;
-        TextView userNameTextView;
+        ImageView sellerImageView;
+        TextView sellerNameTextView;
         Context viewHolderContext;
 
         private FirebaseDatabase mdatabase=FirebaseDatabase.getInstance();
@@ -110,8 +110,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             titleTextView = itemView.findViewById(R.id.card_title);
             subTitleTextView = itemView.findViewById(R.id.card_subtitle);
             favouriteButton=itemView.findViewById(R.id.favouriteButton);
-            userImageview=itemView.findViewById(R.id.userImageView);
-            userNameTextView=itemView.findViewById(R.id.userNameTextView);
+            sellerImageView=itemView.findViewById(R.id.sellerImageView);
+            sellerNameTextView=itemView.findViewById(R.id.sellerNameTextView);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
 
@@ -155,6 +155,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             FirebaseDatabase mdatabase=FirebaseDatabase.getInstance();
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             DatabaseReference muserReference=mdatabase.getReference().child("users").child(mAuth.getCurrentUser().getUid());
+            DatabaseReference msellerReference=mdatabase.getReference().child("users").child(bookDataModel.getUserId());
 
             muserReference.child("Favourites").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -174,13 +175,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             titleTextView.setText(bookDataModel.getTitle());
             subTitleTextView.setText(bookDataModel.getAuthor());
 
-            muserReference.child("image url").addListenerForSingleValueEvent(new ValueEventListener() {
+            msellerReference.child("image url").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                    String url=dataSnapshot.getValue(String.class);
 
-                   Picasso.with(context).load(url).placeholder(R.drawable.ic_round_account_button_with_user_inside).into(userImageview);
-                    Log.e("user image url",url);
+                   Picasso.with(context).load(url).placeholder(R.drawable.ic_round_account_button_with_user_inside).into(sellerImageView);
+//                    Log.e("user image url",url);
                 }
 
                 @Override
@@ -189,11 +190,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 }
             });
 
-            muserReference.child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+            msellerReference.child("name").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String userName=dataSnapshot.getValue(String.class);
-                    userNameTextView.setText(userName);
+                    sellerNameTextView.setText(userName);
 
                 }
 
