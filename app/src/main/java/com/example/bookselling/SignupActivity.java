@@ -23,37 +23,33 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class SignupActivity extends AppCompatActivity {
 
+    private static final String TAG = "SignupActivity";
+    EditText _nameText;
+    EditText _emailText;
+    EditText _passwordText;
+    Button _signupButton;
+    TextView _loginLink;
     private FirebaseAuth mAuth;
     private FirebaseDatabase mdatabase;
     private DatabaseReference musersReference;
-
-    private static final String TAG = "SignupActivity";
-
-    EditText _nameText;
-    EditText _emailText;
-     EditText _passwordText;
-
-    Button _signupButton;
-
-    TextView _loginLink;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         setContentView(R.layout.activity_signup);
-        mdatabase=FirebaseDatabase.getInstance();
-        musersReference=mdatabase.getReference().child("users");
+        mdatabase = FirebaseDatabase.getInstance();
+        musersReference = mdatabase.getReference().child("users");
         mAuth = FirebaseAuth.getInstance();
 
 
-        _nameText=findViewById(R.id.input_name);
-        _emailText=findViewById(R.id.input_email);
-       _passwordText=findViewById(R.id.input_password);
+        _nameText = findViewById(R.id.input_name);
+        _emailText = findViewById(R.id.input_email);
+        _passwordText = findViewById(R.id.input_password);
 
-       _signupButton=findViewById(R.id.btn_signup);
+        _signupButton = findViewById(R.id.btn_signup);
 
-       _loginLink=findViewById(R.id.link_login);
+        _loginLink = findViewById(R.id.link_login);
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,7 +107,7 @@ public class SignupActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             onSignupFailed();
-                           // updateUI(null);
+                            // updateUI(null);
                         }
 
                         // ...
@@ -134,10 +130,10 @@ public class SignupActivity extends AppCompatActivity {
 
     public void onSignupSuccess() {
         _signupButton.setEnabled(true);
-        Intent intent=new Intent();
-        intent.putExtra("email",_emailText.getText().toString());
-        intent.putExtra("password",_passwordText.getText().toString());
-        setResult(RESULT_OK,intent);
+        Intent intent = new Intent();
+        intent.putExtra("email", _emailText.getText().toString());
+        intent.putExtra("password", _passwordText.getText().toString());
+        setResult(RESULT_OK, intent);
         finish();
     }
 

@@ -63,7 +63,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/imageView2"
                     app:srcCompat="@drawable/ic_image_add_button"
-                    tools:style="@style/UnelevatedButton" />
+                    style="@style/Widget.Design.FloatingActionButton"/>
             </FrameLayout>
 
             <com.google.android.material.textfield.TextInputLayout

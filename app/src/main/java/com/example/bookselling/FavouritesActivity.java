@@ -1,19 +1,12 @@
 package com.example.bookselling;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,7 +24,15 @@ import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FavouritesActivity extends AppCompatActivity implements RecyclerViewAdapter.OnItemListener{
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class FavouritesActivity extends AppCompatActivity implements
+        RecyclerViewAdapter.OnItemListener {
     private FirebaseAuth mAuth;
     private FirebaseDatabase mdatabase;
     private DatabaseReference muserReference;
@@ -41,18 +42,20 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private List<BookDataModel> favouritesList;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_explore);
 
-        favouritesList=new ArrayList<>();
+        favouritesList = new ArrayList<>();
 
-        mdatabase=FirebaseDatabase.getInstance();
+        mdatabase = FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
-        muserReference=mdatabase.getReference().child("users").child(mAuth.getCurrentUser().getUid());
-        mBooksReference=mdatabase.getReference().child("books");
+        muserReference = mdatabase.getReference().child("users").child(
+                mAuth.getCurrentUser().getUid());
+        mBooksReference = mdatabase.getReference().child("books");
 
         addItems();
 
@@ -72,39 +75,41 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL));
 
         // specify an adapter and pass in our data model list
 
-        mAdapter = new RecyclerViewAdapter(favouritesList,this ,this);
+        mAdapter = new RecyclerViewAdapter(favouritesList, this, this);
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
 
-
-
     }
-    private void addItems(){
-        mChildEventListener=new ChildEventListener() {
+
+    private void addItems() {
+        mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.i("idk",dataSnapshot.getKey());
-                mBooksReference.child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        Log.i("gdgf",dataSnapshot.getValue().toString());
-                        BookDataModel bookDataModel =dataSnapshot.getValue(BookDataModel.class);
-                        bookDataModel.setRefKey(dataSnapshot.getKey());
-                        Log.i("gdgf", bookDataModel.getAuthor());
-                        favouritesList.add(bookDataModel);
-                        mAdapter.notifyDataSetChanged();
-                    }
+                Log.i("idk", dataSnapshot.getKey());
+                mBooksReference.child(dataSnapshot.getKey()).addValueEventListener(
+                        new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                Log.i("gdgf", dataSnapshot.getValue().toString());
+                                BookDataModel bookDataModel = dataSnapshot.getValue(
+                                        BookDataModel.class);
+                                bookDataModel.setRefKey(dataSnapshot.getKey());
+                                Log.i("gdgf", bookDataModel.getAuthor());
+                                favouritesList.add(bookDataModel);
+                                mAdapter.notifyDataSetChanged();
+                            }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
+                            }
+                        });
             }
 
             @Override
@@ -139,9 +144,14 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
 
     @Override
     public void OnButton2Click(int position, View view) {
-        Toast.makeText(this, "2" + position, Toast.LENGTH_SHORT).show();
+
 
         String pushId = favouritesList.get(position).getRefKey();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
 
         generateDynamicLink(generateDeepLinkUrl(pushId));
     }
@@ -163,7 +173,8 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
 
 
     /**
-     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this lik myawesomeapp.com/shared_content=pushID
+     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this
+     * lik myawesomeapp.com/shared_content=pushID
      *
      * @param url of the custom page we created above with the custom data of the user
      */
@@ -182,27 +193,28 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
         // shareDeepLink(dynamicLinkUri.toString());
 
 
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                .setLink(Uri.parse(url))
-                .setDomainUriPrefix("https://bookselling.page.link")
-                // Set parameters
-                // ...
-                .buildShortDynamicLink()
-                .addOnCompleteListener(this, new OnCompleteListener<ShortDynamicLink>() {
-                    @Override
-                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                        if (task.isSuccessful()) {
-                            // Short link created
-                            Uri shortLink = task.getResult().getShortLink();
-                            Uri flowchartLink = task.getResult().getPreviewLink();
+        Task<ShortDynamicLink> shortLinkTask =
+                FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse(url))
+                        .setDomainUriPrefix("https://bookselling.page.link")
+                        // Set parameters
+                        // ...
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(this, new OnCompleteListener<ShortDynamicLink>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                if (task.isSuccessful()) {
+                                    // Short link created
+                                    Uri shortLink = task.getResult().getShortLink();
+                                    Uri flowchartLink = task.getResult().getPreviewLink();
 
-                            shareDeepLink(shortLink.toString());
-                        } else {
-                            // Error
-                            // ...
-                        }
-                    }
-                });
+                                    shareDeepLink(shortLink.toString());
+                                } else {
+                                    // Error
+                                    // ...
+                                }
+                            }
+                        });
     }
 
     /**
@@ -216,6 +228,7 @@ public class FavouritesActivity extends AppCompatActivity implements RecyclerVie
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! check this content out  " + url);
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check this out !");
+        progressDialog.dismiss();
         startActivity(Intent.createChooser(shareIntent, "Share this cool content"));
 
     }

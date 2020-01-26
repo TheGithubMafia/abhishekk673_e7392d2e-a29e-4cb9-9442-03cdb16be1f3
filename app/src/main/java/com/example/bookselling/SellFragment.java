@@ -3,11 +3,13 @@ package com.example.bookselling;
 import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -25,8 +26,6 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -45,7 +44,6 @@ import java.net.URL;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 
 public class SellFragment extends Fragment {
@@ -67,8 +65,8 @@ public class SellFragment extends Fragment {
     private EditText authorTV;
     private EditText descriptionTV;
     private EditText priceTV;
-    private boolean profileCompleted=true;
-
+    private boolean profileCompleted = true;
+    private ProgressDialog progressDialog;
 
 
     @Nullable
@@ -100,21 +98,25 @@ public class SellFragment extends Fragment {
         muserReference = mdatabase.getReference().child("users").child(
                 mAuth.getCurrentUser().getUid());
 
-            return view;
+        return view;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        selectedImage = data.getData();
-        if (requestCode == 1 && resultCode == RESULT_OK && selectedImage != null) {
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(),
-                        selectedImage);
-                ImageView imageView = getView().findViewById(R.id.imageView2);
-                imageView.setImageBitmap(bitmap);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (data != null) {
+            selectedImage = data.getData();
+            if (requestCode == 1 && resultCode == RESULT_OK && selectedImage != null) {
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(
+                            getContext().getContentResolver(),
+                            selectedImage);
+                    ImageView imageView = getView().findViewById(R.id.imageView2);
+                    imageView.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
 
         }
@@ -141,6 +143,10 @@ public class SellFragment extends Fragment {
 
 
     private void postBook(View view) {
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Posting...");
+        progressDialog.show();
         titleTV = view.findViewById(R.id.titleTextView);
         authorTV = view.findViewById(R.id.authorTextView);
         descriptionTV = view.findViewById(R.id.descriptionTextView);
@@ -159,8 +165,11 @@ public class SellFragment extends Fragment {
         muserReference.child("image url").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                if (!snapshot.exists()) profileCompleted = false;
-                else  profileCompleted=true;
+                if (!snapshot.exists()) {
+                    profileCompleted = false;
+                } else {
+                    profileCompleted = true;
+                }
             }
 
             @Override
@@ -190,68 +199,79 @@ public class SellFragment extends Fragment {
             dialog.show();
 
 
-        }else  if (validate()) {
+        } else if (validate()) {
 
-                final StorageReference photoref = mStorageReference.child(
-                        selectedImage.getLastPathSegment());
-                UploadTask uploadTask = photoref.putFile(selectedImage);
-                Task<Uri> urlTask = uploadTask.continueWithTask(
-                        new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                            @Override
-                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task)
-                                    throws Exception {
-                                if (!task.isSuccessful()) {
-                                    throw task.getException();
-                                }
-
-                                // Continue with the task to get the download URL
-                                return photoref.getDownloadUrl();
+            final StorageReference photoref = mStorageReference.child(
+                    selectedImage.getLastPathSegment());
+            UploadTask uploadTask = photoref.putFile(selectedImage);
+            Task<Uri> urlTask = uploadTask.continueWithTask(
+                    new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                        @Override
+                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task)
+                                throws Exception {
+                            if (!task.isSuccessful()) {
+                                throw task.getException();
                             }
-                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Uri downloadUri = task.getResult();
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                            String userId = user.getUid();
-                            BookDataModel book = new BookDataModel(title, author, description,
-                                    price,
-                                    downloadUri.toString(), userId);
 
-                            mBooksReference.push().setValue(book);
-                            Log.i("ye", downloadUri.toString());
-                        } else {
-                            // Handle failures
-                            // ...
+                            // Continue with the task to get the download URL
+                            return photoref.getDownloadUrl();
                         }
+                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        String userId = user.getUid();
+                        BookDataModel book = new BookDataModel(title, author, description,
+                                price,
+                                downloadUri.toString(), userId);
+
+                        mBooksReference.push().setValue(book);
+                        progressDialog.dismiss();
+                        final Handler handler = new Handler();
+                        final androidx.appcompat.app.AlertDialog.Builder builder =
+                                new androidx.appcompat.app.AlertDialog.Builder(getContext());
+                        builder.setMessage("Posted");
+                        final androidx.appcompat.app.AlertDialog dialog = builder.create();
+                        dialog.show();
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                dialog.dismiss();
+                            }
+                        }, 3000);
+                        Log.i("ye", downloadUri.toString());
+                    } else {
+                        // Handle failures
+                        // ...
                     }
-                });
+                }
+            });
 
-                //*dirty trick to make dyno of heroku active on posting new book*//
-                new Thread() {
-                    public void run() {
+            //*dirty trick to make dyno of heroku active on posting new book*//
+            new Thread() {
+                public void run() {
 
-                        try {
-                            URL url = new URL("https://tranquil-mountain-80007.herokuapp.com/");
+                    try {
+                        URL url = new URL("https://tranquil-mountain-80007.herokuapp.com/");
 
-                            HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
-                            urlc.setConnectTimeout(1000 * 30);// mTimeout is in seconds
-                            urlc.connect();
-                            urlc.getContent();
-                            Log.e("ping", "heroku00");
+                        HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+                        urlc.setConnectTimeout(1000 * 30);// mTimeout is in seconds
+                        urlc.connect();
+                        urlc.getContent();
+                        Log.e("ping", "heroku00");
 
-                        } catch (MalformedURLException e1) {
-                            e1.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
+                    } catch (MalformedURLException e1) {
+                        e1.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                }.start();
 
-            }
+                }
+            }.start();
+
         }
-
+    }
 
 
     private boolean validate() {

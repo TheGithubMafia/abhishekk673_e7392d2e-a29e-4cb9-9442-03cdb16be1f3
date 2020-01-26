@@ -47,7 +47,7 @@
                 android:clickable="true"
                 android:onClick="selectImage"
                 app:srcCompat="@drawable/ic_image_add_button"
-                tools:style="@style/UnelevatedButton" />
+                tools:style="@style/Widget.Design.FloatingActionButton" />
 
 
         </FrameLayout>

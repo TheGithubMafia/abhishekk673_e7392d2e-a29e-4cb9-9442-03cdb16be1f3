@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -36,15 +35,24 @@ import androidx.recyclerview.widget.RecyclerView;
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 
 
-
     private List<BookDataModel> bookDataModelList;
     private Context mContext;
     private OnItemListener mOnItemListener;
 
-    public SearchAdapter(List<BookDataModel> modelList, Context context, OnItemListener mOnItemListener) {
+    public SearchAdapter(List<BookDataModel> modelList, Context context,
+            OnItemListener mOnItemListener) {
         bookDataModelList = modelList;
         mContext = context;
-        this.mOnItemListener=mOnItemListener;
+        this.mOnItemListener = mOnItemListener;
+    }
+
+    public static void setImage(BookDataModel bookDataModel, final ImageView cardImageView,
+            Context mContext) {
+
+        Picasso.with(mContext).load(bookDataModel.getDownloadUri()).placeholder(
+                R.drawable.ic_dashboard_black_24dp).into(cardImageView);
+
+
     }
 
     @NonNull
@@ -53,7 +61,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.search_item, parent, false);
         // Return a new view holder
-        return new ViewHolder(view,mOnItemListener);
+        return new ViewHolder(view, mOnItemListener);
     }
 
     @Override
@@ -61,120 +69,27 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         holder.bindData(bookDataModelList.get(position), mContext);
     }
 
+    // View holder class whose objects represent each list item
+
     @Override
     public int getItemCount() {
         return bookDataModelList.size();
     }
 
-    // View holder class whose objects represent each list item
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-        public ImageView cardImageView;
-        public TextView titleTextView;
-        public TextView subTitleTextView;
-        TextView priceTextView;
-        OnItemListener onItemListener;
-        Button Action1;
-        Button Action2;
-        ImageButton favouriteButton;
-
-        private FirebaseDatabase mdatabase=FirebaseDatabase.getInstance();
-        private FirebaseAuth mAuth=FirebaseAuth.getInstance();
-
-        private DatabaseReference muserReference=mdatabase.getReference().child("users").child(mAuth.getCurrentUser().getUid());
-
-        public ViewHolder(@NonNull final View itemView, final OnItemListener onItemListener) {
-            super(itemView);
-            Action1=itemView.findViewById(R.id.contactSellerButton);
-            Action2=itemView.findViewById(R.id.shareButton);
-            this.onItemListener=onItemListener;
-            cardImageView = itemView.findViewById(R.id.bookImageView);
-            titleTextView = itemView.findViewById(R.id.nameTextView);
-            subTitleTextView = itemView.findViewById(R.id.authorTextView);
-            favouriteButton=itemView.findViewById(R.id.favouriteButton);
-            priceTextView=itemView.findViewById(R.id.priceTextView);
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
-
-
-
-            favouriteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onItemListener.OnFavButtonClick(getAdapterPosition(),itemView);
-                }
-            });
-            Action1.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onItemListener.OnButton1Click(getAdapterPosition(),itemView);
-                }
-            });
-            Action2.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onItemListener.OnButton2Click(getAdapterPosition(),itemView);
-                }
-            });
-
-
-        }
-
-
-        public void bindData(final BookDataModel bookDataModel, Context context) {
-
-            muserReference.child("Favourites").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.hasChild(bookDataModel.getRefKey()))
-                        favouriteButton.setImageResource(R.drawable.ic_favorite_orange_24dp);
-                    else favouriteButton.setImageResource(R.drawable.ic_favorite_black_24dp);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-
-            setImage(bookDataModel,cardImageView,context);
-            titleTextView.setText(bookDataModel.getTitle());
-            subTitleTextView.setText(bookDataModel.getAuthor());
-        }
-
-        @Override
-        public void onClick(View v) {
-            onItemListener.OnBookClick(getAdapterPosition());
-        }
-
-        @Override
-        public boolean onLongClick(View view) {
-            onItemListener.OnBookLongClick(getAdapterPosition(),view);
-            return true;
-        }
-    }
-
-
-    public static void setImage(BookDataModel bookDataModel, final ImageView cardImageView, Context mContext){
-
-        Picasso.with(mContext).load(bookDataModel.getDownloadUri()).placeholder(R.drawable.ic_dashboard_black_24dp).into(cardImageView);
-
-
-
-    }
-
-    public interface OnItemListener{
-        default void OnBookClick(int position){
+    public interface OnItemListener {
+        default void OnBookClick(int position) {
             Log.i("Book", Integer.toString(position));
 
             Intent intent = new Intent(getCon(), BookDetailsActivity.class);
             intent.putExtra("position", position);
             getCon().startActivity(intent);
         }
-        void OnBookLongClick(int position,View view);
 
-        default void OnButton1Click(int position,View view){
-            Toast.makeText(getCon(), "1" + position, Toast.LENGTH_SHORT).show();
+        void OnBookLongClick(int position, View view);
+
+        default void OnButton1Click(int position, View view) {
+
 
             Intent intent = new Intent(Intent.ACTION_DIAL);
             intent.setData(Uri.parse("tel:9999999999"));
@@ -182,10 +97,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         }
 
 
+        void OnButton2Click(int position, View view);
 
-        void OnButton2Click(int position,View view);
-
-        default void OnFavButtonClick(int position,View view){
+        default void OnFavButtonClick(int position, View view) {
             final ImageButton btn = view.findViewById(R.id.favouriteButton);
             outAnimation.setAnimationListener(new Animation.AnimationListener() {
 
@@ -199,21 +113,27 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
                 public void onAnimationEnd(Animation animation) {
 
                     // Modify the resource of the ImageButton
-                    Drawable unselected = getCon().getResources().getDrawable(R.drawable.ic_favorite_black_24dp);
-                    Drawable selected = getCon().getResources().getDrawable(R.drawable.ic_favorite_orange_24dp);
+                    Drawable unselected = getCon().getResources().getDrawable(
+                            R.drawable.ic_favorite_black_24dp);
+                    Drawable selected = getCon().getResources().getDrawable(
+                            R.drawable.ic_favorite_orange_24dp);
                     Drawable btnDrawable = btn.getDrawable();
 
                     if (btnDrawable.getConstantState() == unselected.getConstantState()) {
 
                         btn.setImageResource(R.drawable.ic_favorite_orange_24dp);
-                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(getBookDataModelList().get(position).getRefKey()).setValue("True");
+                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                                "Favourites").child(
+                                getBookDataModelList().get(position).getRefKey()).setValue("True");
 
                         // Create the new Animation to apply to the ImageButton.
                         btn.startAnimation(inAnimation);
                     } else {
                         btn.setImageResource(R.drawable.ic_favorite_black_24dp);
                         btn.startAnimation(inAnimation);
-                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(getBookDataModelList().get(position).getRefKey()).removeValue();
+                        mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                                "Favourites").child(
+                                getBookDataModelList().get(position).getRefKey()).removeValue();
                     }
 
                 }
@@ -225,8 +145,102 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
             });
             btn.startAnimation(outAnimation);
         }
+
         Context getCon();
+
         List<BookDataModel> getBookDataModelList();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
+            View.OnLongClickListener {
+        public ImageView cardImageView;
+        public TextView titleTextView;
+        public TextView subTitleTextView;
+        TextView priceTextView;
+        OnItemListener onItemListener;
+        Button Action1;
+        Button Action2;
+        ImageButton favouriteButton;
+
+        private FirebaseDatabase mdatabase = FirebaseDatabase.getInstance();
+        private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        private DatabaseReference muserReference = mdatabase.getReference().child("users").child(
+                mAuth.getCurrentUser().getUid());
+
+        public ViewHolder(@NonNull final View itemView, final OnItemListener onItemListener) {
+            super(itemView);
+            Action1 = itemView.findViewById(R.id.contactSellerButton);
+            Action2 = itemView.findViewById(R.id.shareButton);
+            this.onItemListener = onItemListener;
+            cardImageView = itemView.findViewById(R.id.bookImageView);
+            titleTextView = itemView.findViewById(R.id.nameTextView);
+            subTitleTextView = itemView.findViewById(R.id.authorTextView);
+            favouriteButton = itemView.findViewById(R.id.favouriteButton);
+            priceTextView = itemView.findViewById(R.id.priceTextView);
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
+
+
+            favouriteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemListener.OnFavButtonClick(getAdapterPosition(), itemView);
+                }
+            });
+            Action1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemListener.OnButton1Click(getAdapterPosition(), itemView);
+                }
+            });
+            Action2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemListener.OnButton2Click(getAdapterPosition(), itemView);
+                }
+            });
+
+
+        }
+
+
+        public void bindData(final BookDataModel bookDataModel, Context context) {
+
+            muserReference.child("Favourites").addListenerForSingleValueEvent(
+                    new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.hasChild(bookDataModel.getRefKey())) {
+                                favouriteButton.setImageResource(
+                                        R.drawable.ic_favorite_orange_24dp);
+                            } else {
+                                favouriteButton.setImageResource(
+                                        R.drawable.ic_favorite_black_24dp);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
+            setImage(bookDataModel, cardImageView, context);
+            titleTextView.setText(bookDataModel.getTitle());
+            subTitleTextView.setText(bookDataModel.getAuthor());
+        }
+
+        @Override
+        public void onClick(View v) {
+            onItemListener.OnBookClick(getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            onItemListener.OnBookLongClick(getAdapterPosition(), view);
+            return true;
+        }
     }
 
 }

@@ -1,12 +1,6 @@
 package com.example.bookselling;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -33,7 +27,14 @@ import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.OnItemListener,PopupMenu.OnMenuItemClickListener  {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.OnItemListener,
+        PopupMenu.OnMenuItemClickListener {
 
     private List<BookDataModel> MyBooksList;
     private int selectedItem;
@@ -44,16 +45,17 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
     private FirebaseDatabase mdatabase;
     private DatabaseReference mBooksReference;
     private ChildEventListener mChildEventListener;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_explore);
 
-        MyBooksList=new ArrayList<>();
+        MyBooksList = new ArrayList<>();
 
-        mdatabase= FirebaseDatabase.getInstance();
-        mBooksReference=mdatabase.getReference().child("books");
+        mdatabase = FirebaseDatabase.getInstance();
+        mBooksReference = mdatabase.getReference().child("books");
 
         addItems();
 
@@ -74,22 +76,23 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-       // mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+        // mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+        // DividerItemDecoration.VERTICAL));
 
         // specify an adapter and pass in our data model list
 
-        mAdapter = new RecyclerViewAdapter(MyBooksList,this ,this);
+        mAdapter = new RecyclerViewAdapter(MyBooksList, this, this);
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
     }
 
 
-    private void addItems(){
-        mChildEventListener=new ChildEventListener() {
+    private void addItems() {
+        mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                BookDataModel bookDataModel =dataSnapshot.getValue(BookDataModel.class);
+                BookDataModel bookDataModel = dataSnapshot.getValue(BookDataModel.class);
                 bookDataModel.setRefKey(dataSnapshot.getKey());
                 MyBooksList.add(bookDataModel);
                 mAdapter.notifyDataSetChanged();
@@ -117,7 +120,9 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
             }
         };
 
-        mBooksReference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(mChildEventListener);
+        mBooksReference.orderByChild("userId").equalTo(
+                FirebaseAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(
+                mChildEventListener);
 
     }
 
@@ -126,7 +131,7 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
     public void OnBookLongClick(int position, View view) {
         PopupMenu popup = new PopupMenu(this, view);
         MenuInflater inflater = popup.getMenuInflater();
-        selectedItem=position;
+        selectedItem = position;
         inflater.inflate(R.menu.pop_up_menu, popup.getMenu());
         popup.setOnMenuItemClickListener(this);
         popup.show();
@@ -134,9 +139,12 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
 
     @Override
     public void OnButton2Click(int position, View view) {
-        Toast.makeText(this, "2" + position, Toast.LENGTH_SHORT).show();
 
         String pushId = MyBooksList.get(position).getRefKey();
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
 
         generateDynamicLink(generateDeepLinkUrl(pushId));
     }
@@ -158,7 +166,8 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
 
 
     /**
-     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this lik myawesomeapp.com/shared_content=pushID
+     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this
+     * lik myawesomeapp.com/shared_content=pushID
      *
      * @param url of the custom page we created above with the custom data of the user
      */
@@ -177,27 +186,28 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
         // shareDeepLink(dynamicLinkUri.toString());
 
 
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                .setLink(Uri.parse(url))
-                .setDomainUriPrefix("https://bookselling.page.link")
-                // Set parameters
-                // ...
-                .buildShortDynamicLink()
-                .addOnCompleteListener(this, new OnCompleteListener<ShortDynamicLink>() {
-                    @Override
-                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                        if (task.isSuccessful()) {
-                            // Short link created
-                            Uri shortLink = task.getResult().getShortLink();
-                            Uri flowchartLink = task.getResult().getPreviewLink();
+        Task<ShortDynamicLink> shortLinkTask =
+                FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse(url))
+                        .setDomainUriPrefix("https://bookselling.page.link")
+                        // Set parameters
+                        // ...
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(this, new OnCompleteListener<ShortDynamicLink>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                if (task.isSuccessful()) {
+                                    // Short link created
+                                    Uri shortLink = task.getResult().getShortLink();
+                                    Uri flowchartLink = task.getResult().getPreviewLink();
 
-                            shareDeepLink(shortLink.toString());
-                        } else {
-                            // Error
-                            // ...
-                        }
-                    }
-                });
+                                    shareDeepLink(shortLink.toString());
+                                } else {
+                                    // Error
+                                    // ...
+                                }
+                            }
+                        });
     }
 
     /**
@@ -211,6 +221,7 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! check this content out  " + url);
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check this out !");
+        progressDialog.dismiss();
         startActivity(Intent.createChooser(shareIntent, "Share this cool content"));
 
     }
@@ -235,7 +246,7 @@ public class MyBooks extends AppCompatActivity implements RecyclerViewAdapter.On
                 MyBooksList.remove(selectedItem);
 
                 mAdapter.notifyDataSetChanged();
-                Toast.makeText(this,"deleted"+selectedItem,Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "deleted" + selectedItem, Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return false;
