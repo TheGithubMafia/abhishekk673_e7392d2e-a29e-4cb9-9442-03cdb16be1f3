@@ -2,14 +2,15 @@ package com.example.bookselling;
 
 import static android.app.Activity.RESULT_CANCELED;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,11 +70,13 @@ public class AccountFragment extends Fragment {
     private Uri selectedImage;
     private Bitmap selectedImageBitmap;
     private ImageView userImageView;
+    private ProgressDialog progressDialog;
 
 //
 //    private FirebaseDatabase mdatabase=FirebaseDatabase.getInstance();
 //    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
-//    private DatabaseReference muserReference=mdatabase.getReference().child("users").child(mAuth.getCurrentUser().getUid());
+//    private DatabaseReference muserReference=mdatabase.getReference().child("users").child
+//    (mAuth.getCurrentUser().getUid());
 
 
     @Nullable
@@ -156,6 +159,11 @@ public class AccountFragment extends Fragment {
 
         if (accountValidate()) {
 
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Updating...");
+            progressDialog.show();
+
 
             mUsersReference.child(mAuth.getCurrentUser().getUid()).child("hostel name").setValue(
                     hostelName);
@@ -188,6 +196,17 @@ public class AccountFragment extends Fragment {
                         Uri downloadUri = task.getResult();
                         mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
                                 "image url").setValue(downloadUri.toString());
+                        progressDialog.dismiss();
+                        final Handler handler = new Handler();
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setMessage("Updated");
+                        final AlertDialog dialog = builder.create();
+                        dialog.show();
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                dialog.dismiss();
+                            }
+                        }, 3000);
 
                     } else {
                         // Handle failures
@@ -227,9 +246,9 @@ public class AccountFragment extends Fragment {
         if (rollNumber.isEmpty()) {
             rollNumbertextView.setError("please enter your roll number");
         }
-        if(selectedImage==null||selectedImage.toString().isEmpty()){
+        if (selectedImage == null || selectedImage.toString().isEmpty()) {
             Toast.makeText(getContext(), "Please upload an image", Toast.LENGTH_SHORT).show();
-            valid=false;
+            valid = false;
         }
 
         return valid;
@@ -286,7 +305,8 @@ public class AccountFragment extends Fragment {
         if (requestCode == GALLERY) {
             selectedImage = data.getData();
             try {
-                 selectedImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(),
+                selectedImageBitmap = MediaStore.Images.Media.getBitmap(
+                        getContext().getContentResolver(),
                         selectedImage);
                 userImageView.setImageBitmap(selectedImageBitmap);
             } catch (Exception e) {
@@ -322,7 +342,8 @@ public class AccountFragment extends Fragment {
 //            .permission.WRITE_EXTERNAL_STORAGE);
 //
 //            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_MEDIA);
+//                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest
+//                .permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_MEDIA);
 //            } else {
 //
 //            }
@@ -332,62 +353,75 @@ public class AccountFragment extends Fragment {
 
     }
 
-    private void setValues(){
+    private void setValues() {
 
-        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                "name").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String userName=dataSnapshot.getValue(String.class);
+                String userName = dataSnapshot.getValue(String.class);
                 nameTextView.setText(userName);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("hostel name").addListenerForSingleValueEvent(new ValueEventListener() {
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                "hostel name").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String hostelName=dataSnapshot.getValue(String.class);
+                String hostelName = dataSnapshot.getValue(String.class);
                 hostelTextView.setText(hostelName);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("roll number").addListenerForSingleValueEvent(new ValueEventListener() {
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                "roll number").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String rollNumber=dataSnapshot.getValue(String.class);
+                String rollNumber = dataSnapshot.getValue(String.class);
                 rollNumbertextView.setText(rollNumber);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("phone number").addListenerForSingleValueEvent(new ValueEventListener() {
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                "phone number").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String phoneNumber=dataSnapshot.getValue(String.class);
+                String phoneNumber = dataSnapshot.getValue(String.class);
                 phonenumbertextView.setText(phoneNumber);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
 
-        mUsersReference.child(mAuth.getCurrentUser().getUid()).child("image url").addListenerForSingleValueEvent(new ValueEventListener() {
+        mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                "image url").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String url=dataSnapshot.getValue(String.class);
+                String url = dataSnapshot.getValue(String.class);
 
-                if(url!=null)
-                    if(!url.isEmpty()){
-                Picasso.with(getContext()).load(url).placeholder(R.drawable.ic_round_account_button_with_user_inside).into(userImageView);
-                    selectedImage=Uri.parse(url);}
+                if (url != null) {
+                    if (!url.isEmpty()) {
+                        Picasso.with(getContext()).load(url).placeholder(
+                                R.drawable.ic_round_account_button_with_user_inside).into(
+                                userImageView);
+                        selectedImage = Uri.parse(url);
+                    }
+                }
                 //Log.e("user image url",url);
             }
 
@@ -396,7 +430,6 @@ public class AccountFragment extends Fragment {
 
             }
         });
-
 
 
     }

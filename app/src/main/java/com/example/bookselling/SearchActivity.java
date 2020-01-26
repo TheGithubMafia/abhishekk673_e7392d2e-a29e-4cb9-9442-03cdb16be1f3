@@ -1,16 +1,11 @@
 package com.example.bookselling;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import static com.example.bookselling.ExploreFragment.bookDataModelList;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
@@ -19,10 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.AutoCompleteTextView;
-import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.algolia.search.saas.AlgoliaException;
 import com.algolia.search.saas.Client;
@@ -42,10 +34,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.bookselling.ExploreFragment.bookDataModelList;
-import static com.example.bookselling.ExploreFragment.inAnimation;
-import static com.example.bookselling.ExploreFragment.mUsersReference;
-import static com.example.bookselling.ExploreFragment.outAnimation;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 public class SearchActivity extends AppCompatActivity implements SearchAdapter.OnItemListener {
@@ -53,17 +46,19 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
     private ArrayList<BookDataModel> bookDataModelArrayList;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
 
-        bookDataModelArrayList=new ArrayList<>();
+        bookDataModelArrayList = new ArrayList<>();
         bookDataModelArrayList.clear();
-        recyclerView=findViewById(R.id.searchRecyclerView);
+        recyclerView = findViewById(R.id.searchRecyclerView);
 
-       // Toast.makeText(this,"Gdfgd",Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this,"Gdfgd",Toast.LENGTH_SHORT).show();
 
         handleIntent(getIntent());
 
@@ -89,16 +84,13 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
             suggestions.saveRecentQuery(query, null);
 
 
-            Toast.makeText(this,query,Toast.LENGTH_SHORT).show();
-
-
             Client client = new Client("IZDGA4GCBK", "0d030bc6e78332bbbc83f85017c87eec");
             Index index = client.getIndex("Books");
 
             CompletionHandler completionHandler = new CompletionHandler() {
                 @Override
                 public void requestCompleted(JSONObject content, AlgoliaException error) {
-                    Log.e("op",content.toString());
+                    Log.e("op", content.toString());
 
                     sendResult(content);
 
@@ -110,36 +102,36 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
         }
     }
 
-    private void sendResult(JSONObject content){
+    private void sendResult(JSONObject content) {
         JSONArray jsonArray;
-         String title;
-         String author;
+        String title;
+        String author;
 
         String description;
         int price;
         String downloadUri;
         String userId;
         try {
-           jsonArray =content.getJSONArray("hits");
-            Log.e("sdaaaaa",jsonArray.toString());
+            jsonArray = content.getJSONArray("hits");
+            Log.e("sdaaaaa", jsonArray.toString());
 
-            for (int i=0;i<jsonArray.length();++i){
-                JSONObject jsonObject=jsonArray.getJSONObject(i);
+            for (int i = 0; i < jsonArray.length(); ++i) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                Log.e("jsonobject",jsonObject.toString());
+                Log.e("jsonobject", jsonObject.toString());
 
-                title=jsonObject.getString("title");
-                author=jsonObject.getString("author");
-                description=jsonObject.getString("description");
-                price=jsonObject.getInt("price");
-                downloadUri=jsonObject.getString("downloadUri");
-                userId=jsonObject.getString("userId");
+                title = jsonObject.getString("title");
+                author = jsonObject.getString("author");
+                description = jsonObject.getString("description");
+                price = jsonObject.getInt("price");
+                downloadUri = jsonObject.getString("downloadUri");
+                userId = jsonObject.getString("userId");
 
-                BookDataModel bookDataModel=new BookDataModel(title,author,description,price,downloadUri,userId);
+                BookDataModel bookDataModel = new BookDataModel(title, author, description, price,
+                        downloadUri, userId);
                 bookDataModel.setRefKey(jsonObject.getString("objectID"));
 
                 bookDataModelArrayList.add(bookDataModel);
-
 
 
             }
@@ -155,9 +147,8 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
         recyclerView.setLayoutManager(mLayoutManager);
 
 
-
-
-        SearchAdapter adapter=new SearchAdapter(bookDataModelArrayList,SearchActivity.this,SearchActivity.this);
+        SearchAdapter adapter = new SearchAdapter(bookDataModelArrayList, SearchActivity.this,
+                SearchActivity.this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
@@ -173,9 +164,13 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
 
     @Override
     public void OnButton2Click(int position, View view) {
-        Toast.makeText(this, "2" + position, Toast.LENGTH_SHORT).show();
 
         String pushId = bookDataModelList.get(position).getRefKey();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
 
         generateDynamicLink(generateDeepLinkUrl(pushId));
     }
@@ -205,7 +200,7 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
 
 //        searchView.setSearchableInfo( searchManager.getSearchableInfo(new
 //                ComponentName(this,SearchActivity.class)));
-        searchView.setSearchableInfo( searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         searchView.setSubmitButtonEnabled(true);
         searchView.setQueryRefinementEnabled(true);
@@ -216,19 +211,22 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
 
 
         int searchEditTextId = R.id.search_src_text;
-        final AutoCompleteTextView searchEditText = (AutoCompleteTextView) searchView.findViewById(searchEditTextId);
+        final AutoCompleteTextView searchEditText = (AutoCompleteTextView) searchView.findViewById(
+                searchEditTextId);
         final View dropDownAnchor = searchView.findViewById(searchEditText.getDropDownAnchor());
 
         if (dropDownAnchor != null) {
             dropDownAnchor.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
                 public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                        int oldLeft, int oldTop, int oldRight, int oldBottom) {
 
                     // screen width
-                    int screenWidthPixel = SearchActivity.this.getResources().getDisplayMetrics().widthPixels;
+                    int screenWidthPixel =
+                            SearchActivity.this.getResources().getDisplayMetrics().widthPixels;
                     searchEditText.setDropDownWidth(screenWidthPixel);
-                    searchEditText.setDropDownBackgroundDrawable(getDrawable(R.drawable.suggestions_background));
+                    searchEditText.setDropDownBackgroundDrawable(
+                            getDrawable(R.drawable.suggestions_background));
 
                 }
             });
@@ -238,15 +236,14 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_favorite:
-                Intent intent=new Intent(this,FavouritesActivity.class);
+                Intent intent = new Intent(this, FavouritesActivity.class);
                 startActivity(intent);
-                Log.i("asdad","sad");
+                Log.i("asdad", "sad");
                 return true;
 
 //            case R.id.search:
@@ -268,21 +265,27 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
     }
 
     /**
-     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this lik myawesomeapp.com/shared_content=pushID
+     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this
+     * lik myawesomeapp.com/shared_content=pushID
      *
      * @param url of the custom page we created above with the custom data of the user
      */
     private void generateDynamicLink(final String url) {
 
-//Since this will take a little bit to generate I just make a simple dialog that is the same as a ProgressDialog displaying to the user a message that says that the link to share is beign generated
+//Since this will take a little bit to generate I just make a simple dialog that is the same as a
+// ProgressDialog displaying to the user a message that says that the link to share is beign
+// generated
 
 //        final Dialog dialog = new Dialog(getContext());
 //        String generandoRecorrido = getString(R.string.generando_recorrido);
 //        DialogsUtils.iniSaveDialog(dialog, generandoRecorrido);
 
-//setDomainUriPrefix should host a link like this https://myawesomeapp.page.link , remember to use .page.link !!
+//setDomainUriPrefix should host a link like this https://myawesomeapp.page.link , remember to
+// use .page.link !!
 
-//The androidParameters is just the package name of the app , this is because if the app is not installed it will prompt the user to the playstore to download it, package example com.gaston.myapp
+//The androidParameters is just the package name of the app , this is because if the app is not
+// installed it will prompt the user to the playstore to download it, package example com.gaston
+// .myapp
 
 //        FirebaseDynamicLinks.getInstance().createDynamicLink()
 //                .setLink(Uri.parse(url))
@@ -291,7 +294,8 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
 //                        new DynamicLink.AndroidParameters.Builder("com.example.bookselling")
 //                                .setMinimumVersion(102)
 //                                .build())
-//                .buildShortDynamicLink(ShortDynamicLink.Suffix.SHORT).addOnCompleteListener( new OnCompleteListener<ShortDynamicLink>() {
+//                .buildShortDynamicLink(ShortDynamicLink.Suffix.SHORT).addOnCompleteListener(
+//                new OnCompleteListener<ShortDynamicLink>() {
 //            @Override
 //            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
 //                if (task.isSuccessful()) {
@@ -304,7 +308,8 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
 //                } else {
 //                   // dialog.dismiss();
 //                    Log.e("err",task.getException().toString());
-//                    Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT)
+//                    .show();
 //                }
 //            }
 //        });
@@ -323,27 +328,29 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
         // shareDeepLink(dynamicLinkUri.toString());
 
 
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                .setLink(Uri.parse(url))
-                .setDomainUriPrefix("https://bookselling.page.link")
-                // Set parameters
-                // ...
-                .buildShortDynamicLink()
-                .addOnCompleteListener(SearchActivity.this, new OnCompleteListener<ShortDynamicLink>() {
-                    @Override
-                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                        if (task.isSuccessful()) {
-                            // Short link created
-                            Uri shortLink = task.getResult().getShortLink();
-                            Uri flowchartLink = task.getResult().getPreviewLink();
+        Task<ShortDynamicLink> shortLinkTask =
+                FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse(url))
+                        .setDomainUriPrefix("https://bookselling.page.link")
+                        // Set parameters
+                        // ...
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(SearchActivity.this,
+                                new OnCompleteListener<ShortDynamicLink>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                        if (task.isSuccessful()) {
+                                            // Short link created
+                                            Uri shortLink = task.getResult().getShortLink();
+                                            Uri flowchartLink = task.getResult().getPreviewLink();
 
-                            shareDeepLink(shortLink.toString());
-                        } else {
-                            // Error
-                            // ...
-                        }
-                    }
-                });
+                                            shareDeepLink(shortLink.toString());
+                                        } else {
+                                            // Error
+                                            // ...
+                                        }
+                                    }
+                                });
     }
 
     /**
@@ -357,6 +364,7 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.O
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! check this content out  " + url);
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check this out !");
+        progressDialog.dismiss();
         startActivity(Intent.createChooser(shareIntent, "Share this cool content"));
 
     }

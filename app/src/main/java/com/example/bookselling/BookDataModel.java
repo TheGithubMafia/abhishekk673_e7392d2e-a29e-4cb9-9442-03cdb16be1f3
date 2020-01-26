@@ -1,13 +1,6 @@
 package com.example.bookselling;
 
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
-
-import java.sql.Ref;
-import java.util.Locale;
 
 public class BookDataModel {
     private String title;
@@ -20,10 +13,23 @@ public class BookDataModel {
 
     private transient String RefKey;
 
-   // private Bitmap image;
+    // private Bitmap image;
 
-    public BookDataModel(){}
+    public BookDataModel() {
+    }
 
+
+    public BookDataModel(String title, String author, String description, int price,
+            String downloadUri, String userId) {
+
+        this.title = title;
+        this.author = author;
+        this.description = description;
+        this.price = price;
+        this.downloadUri = downloadUri;
+        this.userId = userId;
+        Log.i("dl", downloadUri);
+    }
 
     public String getTitle() {
         return title;
@@ -41,34 +47,24 @@ public class BookDataModel {
         return price;
     }
 
-    public String getDownloadUri(){
+    public String getDownloadUri() {
         return downloadUri;
     }
 
-    public String getUserId(){return userId;}
-
-    public void setRefKey(String RefKey){
-        this.RefKey=RefKey;
+    public String getUserId() {
+        return userId;
     }
 
-    public String getRefKey(){
+    public String getRefKey() {
         return RefKey;
     }
 
-   // public Bitmap getImage() {
-       // return image;
+    // public Bitmap getImage() {
+    // return image;
     //}
 
-
-    public BookDataModel(String title, String author, String description, int price, String downloadUri, String userId) {
-
-        this.title = title;
-        this.author = author;
-        this.description = description;
-        this.price = price;
-        this.downloadUri=downloadUri;
-        this.userId=userId;
-        Log.i("dl",downloadUri);
+    public void setRefKey(String RefKey) {
+        this.RefKey = RefKey;
     }
 
 

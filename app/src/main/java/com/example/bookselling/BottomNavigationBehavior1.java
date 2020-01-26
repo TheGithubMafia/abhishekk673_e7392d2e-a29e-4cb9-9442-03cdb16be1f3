@@ -3,10 +3,10 @@ package com.example.bookselling;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class BottomNavigationBehavior1 extends CoordinatorLayout.Behavior<BottomNavigationView> {
 
@@ -16,18 +16,21 @@ public class BottomNavigationBehavior1 extends CoordinatorLayout.Behavior<Bottom
 
 
     @Override
-    public boolean layoutDependsOn(CoordinatorLayout parent, BottomNavigationView child, View dependency) {
+    public boolean layoutDependsOn(CoordinatorLayout parent, BottomNavigationView child,
+            View dependency) {
         boolean dependsOn = dependency instanceof FrameLayout;
         return dependsOn;
     }
 
     @Override
-    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, BottomNavigationView child, View directTargetChild, View target, int nestedScrollAxes) {
+    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout,
+            BottomNavigationView child, View directTargetChild, View target, int nestedScrollAxes) {
         return nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL;
     }
 
     @Override
-    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, BottomNavigationView child, View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, BottomNavigationView child,
+            View target, int dx, int dy, int[] consumed) {
         if (dy < 0) {
             showBottomNavigationView(child);
         } else if (dy > 0) {

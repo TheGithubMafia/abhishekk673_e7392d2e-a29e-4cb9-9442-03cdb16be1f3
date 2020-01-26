@@ -1,5 +1,6 @@
 package com.example.bookselling;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -12,13 +13,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,25 +22,33 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnItemListener {
     static public List<BookDataModel> bookDataModelList;
     static Animation outAnimation;
     static Animation inAnimation;
+    static DatabaseReference mUsersReference;
+    static FirebaseAuth mAuth;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private FirebaseDatabase mdatabase;
     private DatabaseReference mBooksReference;
-    static  DatabaseReference mUsersReference;
     private ChildEventListener mChildEventListener;
-    static  FirebaseAuth mAuth;
+    private String phone;
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -58,7 +60,8 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_explore, null);
         mRecyclerView = view.findViewById(R.id.recyclerView);
@@ -96,7 +99,8 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
         mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        //  mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+        //  mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+        //  DividerItemDecoration.VERTICAL));
 
         // specify an adapter and pass in our data model list
 
@@ -160,11 +164,27 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
     @Override
     public void OnButton1Click(int position, View view) {
-        Toast.makeText(getContext(), "1" + position, Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(Intent.ACTION_DIAL);
-        intent.setData(Uri.parse("tel:9999999999"));
-        startActivity(intent);
+        mUsersReference.child(bookDataModelList.get(position).getUserId()).child(
+                "phone number").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        phone = dataSnapshot.getValue().toString();
+                        if (!phone.isEmpty()) {
+                            intent.setData(Uri.parse("tel:" + phone));
+                            startActivity(intent);
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
     }
 
 
@@ -190,14 +210,18 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
                 if (btnDrawable.getConstantState() == unselected.getConstantState()) {
 
                     btn.setImageResource(R.drawable.ic_favorite_orange_24dp);
-                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(bookDataModelList.get(position).getRefKey()).setValue("True");
+                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                            "Favourites").child(
+                            bookDataModelList.get(position).getRefKey()).setValue("True");
 
                     // Create the new Animation to apply to the ImageButton.
                     btn.startAnimation(inAnimation);
                 } else {
                     btn.setImageResource(R.drawable.ic_favorite_black_24dp);
                     btn.startAnimation(inAnimation);
-                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child("Favourites").child(bookDataModelList.get(position).getRefKey()).removeValue();
+                    mUsersReference.child(mAuth.getCurrentUser().getUid()).child(
+                            "Favourites").child(
+                            bookDataModelList.get(position).getRefKey()).removeValue();
                 }
 
             }
@@ -219,14 +243,18 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
     @Override
     public List<BookDataModel> getBookDataModelList() {
-        return  bookDataModelList;
+        return bookDataModelList;
     }
 
     @Override
     public void OnButton2Click(int position, View view) {
-        Toast.makeText(getContext(), "2" + position, Toast.LENGTH_SHORT).show();
 
         String pushId = bookDataModelList.get(position).getRefKey();
+
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
 
         generateDynamicLink(generateDeepLinkUrl(pushId));
     }
@@ -248,7 +276,8 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
 
     /**
-     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this lik myawesomeapp.com/shared_content=pushID
+     * This will return a shrinked link using Firebase Dynamic Links , this method will shrink this
+     * lik myawesomeapp.com/shared_content=pushID
      *
      * @param url of the custom page we created above with the custom data of the user
      */
@@ -267,27 +296,31 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
         // shareDeepLink(dynamicLinkUri.toString());
 
 
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                .setLink(Uri.parse(url))
-                .setDomainUriPrefix("https://bookselling.page.link")
-                // Set parameters
-                // ...
-                .buildShortDynamicLink()
-                .addOnCompleteListener(getActivity(), new OnCompleteListener<ShortDynamicLink>() {
-                    @Override
-                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                        if (task.isSuccessful()) {
-                            // Short link created
-                            Uri shortLink = task.getResult().getShortLink();
-                            Uri flowchartLink = task.getResult().getPreviewLink();
+        Task<ShortDynamicLink> shortLinkTask =
+                FirebaseDynamicLinks.getInstance().createDynamicLink()
+                        .setLink(Uri.parse(url))
+                        .setDomainUriPrefix("https://bookselling.page.link")
+                        // Set parameters
+                        // ...
+                        .buildShortDynamicLink()
+                        .addOnCompleteListener(getActivity(),
+                                new OnCompleteListener<ShortDynamicLink>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                        if (task.isSuccessful()) {
 
-                            shareDeepLink(shortLink.toString());
-                        } else {
-                            // Error
-                            // ...
-                        }
-                    }
-                });
+                                            // Short link created
+                                            Uri shortLink = task.getResult().getShortLink();
+                                            Uri flowchartLink = task.getResult().getPreviewLink();
+
+                                            shareDeepLink(shortLink.toString());
+
+                                        } else {
+                                            // Error
+                                            // ...
+                                        }
+                                    }
+                                });
     }
 
     /**
@@ -301,6 +334,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! check this content out  " + url);
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check this out !");
+        progressDialog.dismiss();
         startActivity(Intent.createChooser(shareIntent, "Share this cool content"));
 
     }
