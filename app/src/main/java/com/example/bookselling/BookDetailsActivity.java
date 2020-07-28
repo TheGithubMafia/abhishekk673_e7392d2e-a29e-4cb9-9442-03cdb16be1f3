@@ -166,7 +166,7 @@ public class BookDetailsActivity extends AppCompatActivity {
         description.setText(book.getDescription());
         price.setText("RS. " + String.valueOf(book.getPrice()));
 
-        Picasso.with(this).load(book.getDownloadUri()).placeholder(
+        Picasso.get().load(book.getDownloadUri()).placeholder(
                 R.drawable.ic_dashboard_black_24dp).into(bookImageView);
 
         contact.setOnClickListener(new View.OnClickListener() {

@@ -17,6 +17,7 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,6 +26,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -49,7 +51,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public static void setImage(BookDataModel bookDataModel, final ImageView cardImageView,
-            Context mContext) {
+            Context mContext, ProgressBar progressBar) {
 
 
         // FirebaseStorage storage=FirebaseStorage.getInstance();
@@ -57,8 +59,19 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         // .getDownloadUri());
 
 
-        Picasso.with(mContext).load(bookDataModel.getDownloadUri()).placeholder(
-                R.drawable.ic_dashboard_black_24dp).into(cardImageView);
+        Picasso.get().load(bookDataModel.getDownloadUri()).into(cardImageView, new Callback() {
+            @Override
+            public void onSuccess() {
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                progressBar.setVisibility(View.GONE);
+                cardImageView.setImageResource(R.mipmap.ic_launcher);
+                e.printStackTrace();
+            }
+        });
 
 
        /* try {
@@ -212,6 +225,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         ImageView sellerImageView;
         TextView sellerNameTextView;
         Context viewHolderContext;
+        ProgressBar mProgressBar;
 
 
         private FirebaseDatabase mdatabase = FirebaseDatabase.getInstance();
@@ -233,6 +247,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             favouriteButton = itemView.findViewById(R.id.favouriteButton);
             sellerImageView = itemView.findViewById(R.id.sellerImageView);
             sellerNameTextView = itemView.findViewById(R.id.sellerNameTextView);
+            mProgressBar = itemView.findViewById(R.id.progress_circular);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
 
@@ -298,7 +313,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                         }
                     });
 
-            setImage(bookDataModel, cardImageView, context);
+            setImage(bookDataModel, cardImageView, context, mProgressBar);
             titleTextView.setText(bookDataModel.getTitle());
             subTitleTextView.setText(bookDataModel.getAuthor());
 
@@ -308,7 +323,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             String url = dataSnapshot.getValue(String.class);
 
-                            Picasso.with(context).load(url).placeholder(
+                            Picasso.get().load(url).placeholder(
                                     R.drawable.ic_round_account_button_with_user_inside).into(
                                     sellerImageView);
 //                    Log.e("user image url",url);

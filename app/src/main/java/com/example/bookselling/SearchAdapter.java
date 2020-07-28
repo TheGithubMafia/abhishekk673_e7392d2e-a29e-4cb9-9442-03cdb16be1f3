@@ -49,7 +49,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     public static void setImage(BookDataModel bookDataModel, final ImageView cardImageView,
             Context mContext) {
 
-        Picasso.with(mContext).load(bookDataModel.getDownloadUri()).placeholder(
+        Picasso.get().load(bookDataModel.getDownloadUri()).placeholder(
                 R.drawable.ic_dashboard_black_24dp).into(cardImageView);
 
 

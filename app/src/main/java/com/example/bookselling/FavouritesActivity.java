@@ -75,8 +75,8 @@ public class FavouritesActivity extends AppCompatActivity implements
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
-                DividerItemDecoration.VERTICAL));
+//        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+//                DividerItemDecoration.VERTICAL));
 
         // specify an adapter and pass in our data model list
 
