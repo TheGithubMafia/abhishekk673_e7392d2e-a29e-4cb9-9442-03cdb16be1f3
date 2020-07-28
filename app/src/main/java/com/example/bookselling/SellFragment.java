@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -143,10 +144,6 @@ public class SellFragment extends Fragment {
 
 
     private void postBook(View view) {
-        progressDialog = new ProgressDialog(getContext());
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Posting...");
-        progressDialog.show();
         titleTV = view.findViewById(R.id.titleTextView);
         authorTV = view.findViewById(R.id.authorTextView);
         descriptionTV = view.findViewById(R.id.descriptionTextView);
@@ -200,7 +197,11 @@ public class SellFragment extends Fragment {
 
 
         } else if (validate()) {
-
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Posting...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
             final StorageReference photoref = mStorageReference.child(
                     selectedImage.getLastPathSegment());
             UploadTask uploadTask = photoref.putFile(selectedImage);
@@ -235,11 +236,17 @@ public class SellFragment extends Fragment {
                         builder.setMessage("Posted");
                         final androidx.appcompat.app.AlertDialog dialog = builder.create();
                         dialog.show();
+                        titleTV.setText("");
+                        authorTV.setText("");
+                        descriptionTV.setText("");
+                        priceTV.setText("");
+                        ImageView imageView = Objects.requireNonNull(getView()).findViewById(R.id.imageView2);
+                        imageView.setImageResource(R.color.cardview_dark_backgrounds);
                         handler.postDelayed(new Runnable() {
                             public void run() {
                                 dialog.dismiss();
                             }
-                        }, 3000);
+                        }, 2000);
                         Log.i("ye", downloadUri.toString());
                     } else {
                         // Handle failures

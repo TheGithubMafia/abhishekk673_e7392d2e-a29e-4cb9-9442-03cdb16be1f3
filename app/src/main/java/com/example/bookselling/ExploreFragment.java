@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -49,6 +50,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
     private ChildEventListener mChildEventListener;
     private String phone;
     private ProgressDialog progressDialog;
+    private ProgressBar progressBar;
 
 
     @Override
@@ -65,6 +67,7 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
 
         View view = inflater.inflate(R.layout.fragment_explore, null);
         mRecyclerView = view.findViewById(R.id.recyclerView);
+        progressBar = view.findViewById(R.id.progress_circular);
 
 
         outAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fadeout);
@@ -112,10 +115,12 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
     }
 
     private void addItems() {
+        progressBar.setVisibility(View.VISIBLE);
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Log.i("fsd", dataSnapshot.getValue().toString());
+                progressBar.setVisibility(View.GONE);
                 BookDataModel bookDataModel = dataSnapshot.getValue(BookDataModel.class);
                 bookDataModel.setRefKey(dataSnapshot.getKey());
                 bookDataModelList.add(bookDataModel);

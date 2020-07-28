@@ -12,9 +12,9 @@
         android:paddingLeft="24dp"
         android:paddingRight="24dp">
 
-        <ImageView android:src="@drawable/ic_title"
-            android:layout_width="wrap_content"
-            android:layout_height="72dp"
+        <ImageView android:src="@mipmap/ic_launcher"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal" />
 

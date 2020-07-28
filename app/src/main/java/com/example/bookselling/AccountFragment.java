@@ -416,7 +416,7 @@ public class AccountFragment extends Fragment {
 
                 if (url != null) {
                     if (!url.isEmpty()) {
-                        Picasso.with(getContext()).load(url).placeholder(
+                        Picasso.get().load(url).placeholder(
                                 R.drawable.ic_round_account_button_with_user_inside).into(
                                 userImageView);
                         selectedImage = Uri.parse(url);
