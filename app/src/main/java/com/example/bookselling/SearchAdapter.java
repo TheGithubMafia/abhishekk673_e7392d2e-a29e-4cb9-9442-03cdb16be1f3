@@ -229,6 +229,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
             setImage(bookDataModel, cardImageView, context);
             titleTextView.setText(bookDataModel.getTitle());
             subTitleTextView.setText(bookDataModel.getAuthor());
+            priceTextView.setText("Rs. "+String.valueOf(bookDataModel.getPrice()));
         }
 
         @Override
