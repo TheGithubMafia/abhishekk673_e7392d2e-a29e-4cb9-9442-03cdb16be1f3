@@ -34,7 +34,8 @@
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toTopOf="@+id/card_title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            android:transitionName="book_image"/>
 
         <TextView
             android:id="@+id/card_title"

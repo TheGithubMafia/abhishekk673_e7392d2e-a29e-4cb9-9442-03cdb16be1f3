@@ -123,7 +123,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     public interface OnItemListener {
-        default void OnBookClick(int position) {
+        default void OnBookClick(int position, View v) {
             Log.i("Book", Integer.toString(position));
 
             Intent intent = new Intent(getCon(), BookDetailsActivity.class);
@@ -354,7 +354,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public void onClick(View v) {
-            onItemListener.OnBookClick(getAdapterPosition());
+            onItemListener.OnBookClick(getAdapterPosition(), v.findViewById(R.id.bookImageView));
         }
 
         @Override

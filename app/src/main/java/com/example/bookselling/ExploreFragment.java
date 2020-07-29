@@ -1,5 +1,6 @@
 package com.example.bookselling;
 
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -154,11 +156,13 @@ public class ExploreFragment extends Fragment implements RecyclerViewAdapter.OnI
     }
 
     @Override
-    public void OnBookClick(int position) {
+    public void OnBookClick(int position, View view) {
         Log.i("Book", Integer.toString(position));
 
         Intent intent = new Intent(getContext(), BookDetailsActivity.class);
         intent.putExtra("position", position);
+        ActivityOptions options = ActivityOptions
+                .makeSceneTransitionAnimation(getActivity(), view, "book_image");
         startActivity(intent);
     }
 
