@@ -1,5 +1,5 @@
-# Books Trove
-This is an android app intended to make students of nith able to sell books to juniors or fellows.
+# Book Store Android
+This is an android app intended to enable college students to sell books to juniors or fellows.
 
 ## Splash Screen
 <img src="https://github.com/SkroX/BookSelling/blob/master/screenshots/Screenshot_20200729_132912_com.example.bookselling.jpg" height="650">
